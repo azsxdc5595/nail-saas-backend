@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.nailsaas.entity.ShopInviteCode;
 
-public interface ShopInviteCodeRepository extends JpaRepository<ShopInviteCode, Long> {
+public interface ShopInviteCodeRepository extends JpaRepository<ShopInviteCode, String> {
     
     Optional<ShopInviteCode> findByCode(String code);
     
