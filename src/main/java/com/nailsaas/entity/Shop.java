@@ -40,4 +40,7 @@ public class Shop {
 
     @Column(name = "UPDATE_TIME")
     private LocalDateTime updateTime;
+    
+    @Column(name = "ADDRESS")
+    private String address;
 }

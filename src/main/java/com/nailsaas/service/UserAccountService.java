@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.nailsaas.domain.ApplyManicuristRequest;
 import com.nailsaas.domain.ConfirmUpdateEmailRequest;
 import com.nailsaas.domain.ForgotPasswordRequest;
+import com.nailsaas.domain.GetUserInfoReponse;
 import com.nailsaas.domain.ResetPasswordRequest;
 import com.nailsaas.domain.UpdateEmailRequest;
 import com.nailsaas.domain.UpdatePasswordRequest;
@@ -89,9 +90,12 @@ public class UserAccountService {
     }
 
     // 查詢
-    public UserAccount getUserinfo() {
-        return userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到使用者"));
+    public GetUserInfoReponse getUserinfo() {
+        Optional<UserAccount> optionalUserAccount = Optional.ofNullable(userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到使用者")));
+        UserAccount userAccount = optionalUserAccount.get();
+        GetUserInfoReponse reponse = GetUserInfoReponse.builder().userName(userAccount.getUserName()).email(userAccount.getEmail()).phone(userAccount.getPhone()).build();
+        return reponse;
     }
 
     // 註銷

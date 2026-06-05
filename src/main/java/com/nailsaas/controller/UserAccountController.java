@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nailsaas.domain.ApplyManicuristRequest;
 import com.nailsaas.domain.ConfirmUpdateEmailRequest;
+import com.nailsaas.domain.GetUserInfoReponse;
 import com.nailsaas.domain.UpdateEmailRequest;
 import com.nailsaas.domain.UpdatePasswordRequest;
 import com.nailsaas.domain.UpdateUserRequest;
-import com.nailsaas.entity.UserAccount;
 import com.nailsaas.service.UserAccountService;
 
 @RestController
@@ -24,7 +24,7 @@ public class UserAccountController {
     private UserAccountService service;
 
     @GetMapping("/me")
-    public UserAccount getMe() {
+    public GetUserInfoReponse getMe() {
         return service.getUserinfo();
     }
 

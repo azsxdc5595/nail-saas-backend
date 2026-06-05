@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.nailsaas.domain.ApplyShopRequest;
+import com.nailsaas.domain.GetShopInfoReponse;
+import com.nailsaas.domain.GetShopInfoRequest;
 import com.nailsaas.domain.UpdateUserRequest;
 import com.nailsaas.entity.Manicurist;
 import com.nailsaas.entity.Shop;
@@ -126,6 +128,15 @@ public class ShopService {
         user.setUpdateTime(LocalDateTime.now());
 
         userAccountRepository.save(user);
+    }
+
+    // 查詢
+    public GetShopInfoReponse getShopInfo(GetShopInfoRequest req) {
+        Optional<Shop> optionalShop = Optional.ofNullable(shopRepository.findByCode(req.getShopCode())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到店家資料")));
+        Shop shop = optionalShop.get();
+        GetShopInfoReponse reponse = GetShopInfoReponse.builder().shopName(shop.getShopName()).phone(shop.getPhone()).description(shop.getDescription()).address(shop.getAddress()).build();
+        return reponse;
     }
 
 }
