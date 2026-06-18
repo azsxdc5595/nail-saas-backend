@@ -13,9 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.nailsaas.domain.ApplyShopRequest;
-import com.nailsaas.domain.GetShopInfoReponse;
-import com.nailsaas.domain.GetShopInfoRequest;
-import com.nailsaas.domain.UpdateUserRequest;
+import com.nailsaas.domain.GetManicuristInfoReponse;
+import com.nailsaas.domain.GetManicuristInfoRequest;
+import com.nailsaas.domain.UpdateManicuristRequest;
 import com.nailsaas.entity.Manicurist;
 import com.nailsaas.entity.Shop;
 import com.nailsaas.entity.UserAccount;
@@ -30,7 +30,7 @@ import com.nailsaas.util.Generate;
 import com.nailsaas.util.SecurityUtil;
 
 @Service
-public class ShopService {
+public class ManicuristService {
 
     @Autowired
     private UserAccountRepository userAccountRepository;
@@ -96,18 +96,32 @@ public class ShopService {
         }
     }
 
-    // 查詢
-    public UserAccount getUserinfo() {
-        return userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到使用者"));
+    public void updateMe(UpdateManicuristRequest req) {
+
+        Optional<Manicurist> optionalManicurist = Optional.ofNullable(manicuristRepository.findByCode(req.getManicuristCode())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到美甲師資料")));
+        Manicurist manicurist = optionalManicurist.get();
+
+        // 👉 只更新有傳的欄位（關鍵）
+        if (req.getDisplayName() != null) {
+            manicurist.setDisplayName(req.getDisplayName());
+        }
+
+        if (req.getIntro() != null) {
+            manicurist.setIntro(req.getIntro());
+        }
+
+        manicurist.setUpdateTime(LocalDateTime.now());
+
+        manicuristRepository.save(manicurist);
     }
 
     // 查詢
-    public GetShopInfoReponse getShopInfo(GetShopInfoRequest req) {
-        Optional<Shop> optionalShop = Optional.ofNullable(shopRepository.findByCode(req.getShopCode())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到店家資料")));
-        Shop shop = optionalShop.get();
-        GetShopInfoReponse reponse = GetShopInfoReponse.builder().shopName(shop.getShopName()).phone(shop.getPhone()).description(shop.getDescription()).address(shop.getAddress()).build();
+    public GetManicuristInfoReponse getManicuristInfo(GetManicuristInfoRequest req) {
+        Optional<Manicurist> optionalManicurist = Optional.ofNullable(manicuristRepository.findByCode(req.getManicuristCode())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到美甲師資料")));
+        Manicurist manicurist = optionalManicurist.get();
+        GetManicuristInfoReponse reponse = GetManicuristInfoReponse.builder().displayName(manicurist.getDisplayName()).intro(manicurist.getIntro()).status(manicurist.getStatus()).build();
         return reponse;
     }
 
