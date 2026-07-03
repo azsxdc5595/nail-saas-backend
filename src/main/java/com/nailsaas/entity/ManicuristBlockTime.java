@@ -25,10 +25,10 @@ public class ManicuristBlockTime {
     private Long manicuristId;
 
     @Column(name = "START_TIME")
-    private LocalDate startTime;
+    private LocalDateTime startTime;
     
     @Column(name = "END_TIME")
-    private LocalDate endTime;
+    private LocalDateTime endTime;
 
     @Column(name = "BLOCK_TYPE")
     private String blockType;

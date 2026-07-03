@@ -29,14 +29,11 @@ public class Reservation {
     @Column(name = "MANICURIST_ID")
     private Long manicuristId;
 
-    @Column(name = "RESERVATION_DATE")
-    private java.time.LocalDate reservationDate;
-
-    @Column(name = "START_SLOT_ID")
-    private Integer startSlotId;
-
-    @Column(name = "SLOT_COUNT")
-    private Integer slotCount;
+    @Column(name = "START_TIME")
+    private LocalDateTime startTime;
+    
+    @Column(name = "END_TIME")
+    private LocalDateTime endTime;
 
     @Column(name = "STATUS")
     private String status;
