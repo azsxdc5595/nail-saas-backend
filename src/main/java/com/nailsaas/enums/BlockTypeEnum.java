@@ -1,15 +1,16 @@
 package com.nailsaas.enums;
 
-public enum ManicuristStatusEnum {
+public enum BlockTypeEnum {
 
-    ACTIVE("ACTIVE", "可接單"),
-    INACTIVE("INACTIVE", "暫停接單"),
-    SUSPENDED("SUSPENDED", "停權");
+    REST("REST", "休息"),
+    TRAINING("TRAINING", "教育訓練"),
+    PERSONAL("PERSONAL", "私人行程"),
+    OTHER("OTHER", "其他");
 
     private final String code;
     private final String description;
     
-    ManicuristStatusEnum(String code, String description) {
+    BlockTypeEnum(String code, String description) {
         this.code = code;
         this.description = description;
     }
@@ -22,8 +23,8 @@ public enum ManicuristStatusEnum {
         return description;
     }
     
-    public static ManicuristStatusEnum fromCode(String code) {
-        for (ManicuristStatusEnum s : values()) {
+    public static BlockTypeEnum fromCode(String code) {
+        for (BlockTypeEnum s : values()) {
             if (s.code.equals(code)) {
                 return s;
             }

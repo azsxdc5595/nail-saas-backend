@@ -33,7 +33,7 @@ public class ServiceItemController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id){
-        service.delete(id);
+    public void remove(@PathVariable Long id){
+        service.remove(id);
     }
 }

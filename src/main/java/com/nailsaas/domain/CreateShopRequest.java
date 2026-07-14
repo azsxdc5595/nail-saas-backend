@@ -3,7 +3,7 @@ package com.nailsaas.domain;
 import lombok.Data;
 
 @Data
-public class ApplyShopRequest {
+public class CreateShopRequest {
     
     private String shopName;
     

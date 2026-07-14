@@ -1,14 +1,15 @@
 package com.nailsaas.security;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.security.Key;
 import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
@@ -26,7 +27,7 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // 🔥 Access Token
+    // Access Token
     public String generateAccessToken(String userCode) {
 
         return Jwts.builder()
@@ -38,7 +39,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    // 🔥 Refresh Token
+    // Refresh Token
     public String generateRefreshToken(String userCode) {
 
         return Jwts.builder()

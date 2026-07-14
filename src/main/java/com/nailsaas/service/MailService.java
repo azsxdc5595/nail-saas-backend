@@ -11,7 +11,7 @@ public class MailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    // 👉 注入寄件人
+    // 注入寄件人
     @Autowired
     private String mailSenderUsername;
 

@@ -24,4 +24,6 @@ public interface ShopInviteCodeRepository extends JpaRepository<ShopInviteCode, 
     int useInviteCode(String code,
                       String oldStatus,
                       String newStatus);
+    
+    Optional<ShopInviteCode> findByShopIdAndStatus(Long shopId, String status);
 }

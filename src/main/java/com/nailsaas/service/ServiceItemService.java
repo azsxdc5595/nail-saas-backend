@@ -23,7 +23,7 @@ public class ServiceItemService {
         return repository.save(item);
     }
 
-    public void delete(Long id){
+    public void remove(Long id){
         repository.deleteById(id);
     }
 }

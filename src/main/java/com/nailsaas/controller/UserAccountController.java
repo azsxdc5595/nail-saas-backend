@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nailsaas.domain.ApplyManicuristRequest;
 import com.nailsaas.domain.ConfirmUpdateEmailRequest;
 import com.nailsaas.domain.GetUserInfoReponse;
 import com.nailsaas.domain.UpdateEmailRequest;
@@ -53,9 +52,4 @@ public class UserAccountController {
         return "Email修改成功";
     }
     
-    
-    @PostMapping("/me/manicurist")
-    public void applyManicurist(@RequestBody ApplyManicuristRequest req) {
-        service.applyManicurist(req);
-    }
 }
