@@ -16,7 +16,8 @@ import lombok.Data;
 public class UserAccount {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_user_account")
+    @jakarta.persistence.SequenceGenerator(name = "seq_user_account", sequenceName = "NSAS.SEQ_USER_ACCOUNT", allocationSize = 1)
     @Column(name = "USER_ID")
     private Long id;
 

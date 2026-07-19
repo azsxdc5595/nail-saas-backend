@@ -16,7 +16,8 @@ import lombok.Data;
 public class Manicurist {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_manicurist")
+    @jakarta.persistence.SequenceGenerator(name = "seq_manicurist", sequenceName = "NSAS.SEQ_MANICURIST", allocationSize = 1)
     @Column(name = "MANICURIST_ID")
     private Long id;
 

@@ -16,7 +16,8 @@ import lombok.Data;
 public class Shop {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_shop")
+    @jakarta.persistence.SequenceGenerator(name = "seq_shop", sequenceName = "NSAS.SEQ_SHOP", allocationSize = 1)
     @Column(name = "SHOP_ID")
     private Long id;
 

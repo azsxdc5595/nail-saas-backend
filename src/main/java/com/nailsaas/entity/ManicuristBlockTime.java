@@ -16,7 +16,8 @@ import lombok.Data;
 public class ManicuristBlockTime {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_block_time")
+    @jakarta.persistence.SequenceGenerator(name = "seq_block_time", sequenceName = "NSAS.SEQ_BLOCK_TIME", allocationSize = 1)
     @Column(name = "BLOCK_ID")
     private Long id;
 

@@ -1,5 +1,6 @@
 package com.nailsaas.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -16,7 +17,8 @@ import lombok.Data;
 public class Reservation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_reservation")
+    @jakarta.persistence.SequenceGenerator(name = "seq_reservation", sequenceName = "NSAS.SEQ_RESERVATION", allocationSize = 1)
     @Column(name = "RESERVATION_ID")
     private Long id;
 
@@ -29,11 +31,14 @@ public class Reservation {
     @Column(name = "MANICURIST_ID")
     private Long manicuristId;
 
-    @Column(name = "START_TIME")
-    private LocalDateTime startTime;
-    
-    @Column(name = "END_TIME")
-    private LocalDateTime endTime;
+    @Column(name = "RESERVATION_DATE")
+    private LocalDate reservationDate;
+
+    @Column(name = "START_SLOT_ID")
+    private Long startSlotId;
+
+    @Column(name = "SLOT_COUNT")
+    private Long slotCount;
 
     @Column(name = "STATUS")
     private String status;

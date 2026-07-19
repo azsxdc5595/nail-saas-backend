@@ -15,7 +15,8 @@ import lombok.Data;
 public class EmailVerification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "email_verification_seq")
+    @jakarta.persistence.SequenceGenerator(name = "email_verification_seq", sequenceName = "NSAS.EMAIL_VERIFICATION_SEQ", allocationSize = 1)
     private Long id;
 
     private String userCode;

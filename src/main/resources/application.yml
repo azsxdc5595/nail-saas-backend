@@ -8,7 +8,8 @@ spring:
     password: ${MAIL_PASSWORD}
 
   datasource:
-    url: jdbc:oracle:thin:@www.areszone.net:1525/T05B
+    #url: jdbc:oracle:thin:@www.areszone.net:1525/T05B
+    url: jdbc:oracle:thin:@localhost:1525/T05B
     username: NSAS
     password: nsas0322
     driver-class-name: oracle.jdbc.OracleDriver

@@ -16,7 +16,8 @@ import lombok.Data;
 public class ManicuristBlacklist {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_blacklist")
+    @jakarta.persistence.SequenceGenerator(name = "seq_blacklist", sequenceName = "NSAS.SEQ_BLACKLIST", allocationSize = 1)
     @Column(name = "BLACKLIST_ID")
     private Long id;
 

@@ -1,38 +1,37 @@
 package com.nailsaas.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
 @Table(name = "RESERVATION_SERVICE", schema = "NSAS")
+@IdClass(ReservationServiceId.class)
 @Data
 public class ReservationService {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "RESERVATION_ID")
     private Long reservationId;
 
+    @Id
     @Column(name = "SERVICE_SEQ")
-    private Integer serviceSeq;
+    private Long serviceSeq;
 
     @Column(name = "SERVICE_ID")
     private Long serviceId;
 
     @Column(name = "PRICE")
-    private Double price;
+    private BigDecimal price;
 
     @Column(name = "DURATION_MIN")
-    private Integer durationMin;
+    private Long durationMin;
 
     @Column(name = "CREATE_TIME")
     private LocalDateTime createTime;

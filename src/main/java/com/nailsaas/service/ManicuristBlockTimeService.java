@@ -50,7 +50,7 @@ public class ManicuristBlockTimeService {
         manicuristBlockTimeRepository.save(blockTime);
     }
     
-    // 新增不可預約時間
+    // 移除不可預約時間
     public void removeBlockTime(RemoveManicuristBlockTimeRequest req) {
         manicuristBlockTimeRepository.deleteById(req.getBlockId());
     }

@@ -15,7 +15,8 @@ import lombok.Data;
 public class RefreshToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "refresh_token_seq")
+    @jakarta.persistence.SequenceGenerator(name = "refresh_token_seq", sequenceName = "NSAS.REFRESH_TOKEN_SEQ", allocationSize = 1)
     private Long id;
 
     private String userCode;

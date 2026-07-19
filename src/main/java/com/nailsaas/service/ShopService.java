@@ -185,6 +185,7 @@ public class ShopService {
         manicurist.setCreateTime(LocalDateTime.now());
         manicurist.setStatus(ManicuristStatusEnum.ACTIVE.getCode());
         manicurist.setDisplayName(userAccount.getUserName());
+        manicurist.setRole(RoleEnum.STAFF.getCode());
 
         try {
             manicuristRepository.save(manicurist);

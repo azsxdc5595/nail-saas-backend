@@ -1,5 +1,6 @@
 package com.nailsaas.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -16,7 +17,8 @@ import lombok.Data;
 public class Review {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_review")
+    @jakarta.persistence.SequenceGenerator(name = "seq_review", sequenceName = "NSAS.SEQ_REVIEW", allocationSize = 1)
     @Column(name = "REVIEW_ID")
     private Long id;
 
@@ -30,7 +32,7 @@ public class Review {
     private Long targetId;
 
     @Column(name = "RATING")
-    private Integer rating;
+    private BigDecimal rating;
 
     @Column(name = "COMMENT_TEXT")
     private String commentText;

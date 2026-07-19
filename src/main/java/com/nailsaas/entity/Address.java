@@ -14,7 +14,8 @@ import lombok.Data;
 public class Address {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_address")
+    @jakarta.persistence.SequenceGenerator(name = "seq_address", sequenceName = "NSAS.SEQ_ADDRESS", allocationSize = 1)
     @Column(name = "ADDRESS_ID")
     private Long id;
 

@@ -1,5 +1,6 @@
 package com.nailsaas.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import jakarta.persistence.Column;
@@ -16,7 +17,8 @@ import lombok.Data;
 public class Promotion {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_promotion")
+    @jakarta.persistence.SequenceGenerator(name = "seq_promotion", sequenceName = "NSAS.SEQ_PROMOTION", allocationSize = 1)
     @Column(name = "PROMOTION_ID")
     private Long id;
 
@@ -30,7 +32,7 @@ public class Promotion {
     private String description;
 
     @Column(name = "DISCOUNT_PERCENT")
-    private Integer discountPercent;
+    private BigDecimal discountPercent;
 
     @Column(name = "START_DATE")
     private LocalDate startDate;
