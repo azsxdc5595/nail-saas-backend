@@ -71,7 +71,7 @@ public class UserAccountService {
     }
 
     // 查詢
-    public GetUserInfoReponse getUserinfo() {
+    public GetUserInfoReponse getCurrentUser() {
         Optional<UserAccount> optionalUserAccount = Optional.ofNullable(userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到使用者")));
         UserAccount userAccount = optionalUserAccount.get();

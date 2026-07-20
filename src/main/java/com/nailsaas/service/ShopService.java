@@ -67,11 +67,9 @@ public class ShopService {
         shop.setCreateTime(LocalDateTime.now());
 
         shopRepository.save(shop);
-        optionalShop = shopRepository.findByShopName(req.getShopName());
-        Long shopId = optionalShop.get().getId();
         Manicurist manicurist = new Manicurist();
         manicurist.setCode(generate.generateUuid());
-        manicurist.setShopId(shopId);
+        manicurist.setShopId(shop.getId());
         manicurist.setUserId(userAccount.getId());
         manicurist.setCreateTime(LocalDateTime.now());
         manicurist.setStatus(ManicuristStatusEnum.ACTIVE.getCode());
@@ -86,14 +84,14 @@ public class ShopService {
     }
 
     // 查詢
-    public UserAccount getUserinfo() {
+    public UserAccount getCurrentUser() {
         return userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到使用者"));
     }
 
     // 查詢
     public GetShopInfoReponse me() {
-        UserAccount userAccount = getUserinfo();
+        UserAccount userAccount = getCurrentUser();
         Optional<Shop> optionalShop = Optional.ofNullable(shopRepository.findByUserId(userAccount.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到店家資料")));
         Shop shop = optionalShop.get();
@@ -104,7 +102,7 @@ public class ShopService {
     // 新增一組邀請碼
     @Transactional
     public String invite() {
-        UserAccount userAccount = getUserinfo();
+        UserAccount userAccount = getCurrentUser();
         Shop shop = shopRepository.findByUserId(userAccount.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到店家資料"));
 

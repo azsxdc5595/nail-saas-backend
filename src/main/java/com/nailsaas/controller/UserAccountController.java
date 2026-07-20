@@ -24,7 +24,7 @@ public class UserAccountController {
 
     @GetMapping("/me")
     public GetUserInfoReponse getMe() {
-        return service.getUserinfo();
+        return service.getCurrentUser();
     }
 
     // 修改名稱
