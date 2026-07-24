@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.nailsaas.domain.ApplyNailSampleRequest;
 import com.nailsaas.domain.GetManicuristInfoRequest;
@@ -15,6 +13,8 @@ import com.nailsaas.domain.GetNailSampleReponse;
 import com.nailsaas.domain.RemoveNailSampleRequest;
 import com.nailsaas.entity.Manicurist;
 import com.nailsaas.entity.NailSample;
+import com.nailsaas.enums.ErrorCodeEnum;
+import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.ManicuristRepository;
 import com.nailsaas.repository.NailSampleRepository;
 
@@ -30,7 +30,7 @@ public class NailSampleService {
     // 美甲師查看自己的所有範例
     public GetNailSampleReponse getNailSample(GetManicuristInfoRequest req) {
         Optional<Manicurist> optionalManicurist = Optional.ofNullable(manicuristRepository.findByCode(req.getManicuristCode())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到美甲師資料")));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.MANICURIST_NOT_FOUND)));
         Manicurist manicurist = optionalManicurist.get();
         List<NailSample> nailSampleList = NailSampleRepository.findByManicuristId(manicurist.getId());
         GetNailSampleReponse reponse = GetNailSampleReponse.builder().nailSampleList(nailSampleList).build();

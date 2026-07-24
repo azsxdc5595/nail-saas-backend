@@ -26,6 +26,8 @@ import com.nailsaas.domain.VerifyEmailRequest;
 import com.nailsaas.entity.EmailVerification;
 import com.nailsaas.entity.RefreshToken;
 import com.nailsaas.entity.UserAccount;
+import com.nailsaas.enums.ErrorCodeEnum;
+import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.EmailVerificationRepository;
 import com.nailsaas.repository.RefreshTokenRepository;
 import com.nailsaas.repository.UserAccountRepository;
@@ -103,23 +105,23 @@ public class AuthController {
 
         EmailVerification ev = emailVerificationRepository
                 .findTopByEmailAndStatusOrderByCreateTimeDesc(email, "PENDING")
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "驗證碼不存在或郵箱輸入錯誤"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.AUTH_VERIFY_DATA_NOT_FOUND));
 
-        // 1️⃣ 檢查過期
+        // 檢查過期
         if (ev.getExpireTime().isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "驗證碼已過期");
+            throw new BusinessException(ErrorCodeEnum.AUTH_VERIFY_CODE_EXPIRED);
         }
 
-        // 2️⃣ 檢查錯誤次數
+        // 檢查錯誤次數
         if (ev.getFailCount() >= 5) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "驗證次數過多");
+            throw new BusinessException(ErrorCodeEnum.AUTH_VERIFY_FAILED_TOO_MANY);
         }
 
-        // 3️⃣ 驗證碼比對
+        // 驗證碼比對
         if (!ev.getVerifyCode().equals(code)) {
             ev.setFailCount(ev.getFailCount() + 1);
             emailVerificationRepository.save(ev);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "驗證碼錯誤");
+            throw new BusinessException(ErrorCodeEnum.AUTH_VERIFY_CODE_INCORRECT);
         }
 
         // 驗證成功，把驗證碼資訊移除
@@ -127,7 +129,7 @@ public class AuthController {
 
         UserAccount user = userAccountRepository
                 .findByEmail(email)
-                .orElseThrow();
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
 
         user.setVerified("1");
         userAccountRepository.save(user);
@@ -152,19 +154,19 @@ public class AuthController {
         );
     }
     
-    // 🔥 登入
+    // 登入
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest req, HttpServletResponse response) {
 
         UserAccount user = userAccountRepository.findByEmail(req.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "帳號不存在"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
 
         if (!"1".equals(user.getVerified())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "請先完成Email驗證");
+            throw new BusinessException(ErrorCodeEnum.AUTH_EMAIL_NOT_VERIFIED);
         }
         
         if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "密碼錯誤");
+            throw new BusinessException(ErrorCodeEnum.AUTH_PASSWORD_INCORRECT);
         }
 
         String accessToken = jwtUtil.generateAccessToken(user.getCode());
@@ -203,23 +205,22 @@ public class AuthController {
             HttpServletResponse response) {
 
         if (refreshToken == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh Token不存在");
+            throw new BusinessException(ErrorCodeEnum.AUTH_REFRESH_TOKEN_NOT_FOUND);
         }
 
-        // ⭐ 正確寫法：直接驗（會 throw exception）
         try {
             jwtUtil.validateToken(refreshToken);
         } catch (ExpiredJwtException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh Token過期");
+            throw new BusinessException(ErrorCodeEnum.AUTH_REFRESH_TOKEN_EXPIRED);
         } catch (JwtException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh Token無效");
+            throw new BusinessException(ErrorCodeEnum.AUTH_REFRESH_TOKEN_INVALID);
         }
 
         RefreshToken rt = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh Token不存在"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.AUTH_REFRESH_TOKEN_NOT_FOUND));
 
         if (rt.getExpireTime().isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh Token過期");
+            throw new BusinessException(ErrorCodeEnum.AUTH_REFRESH_TOKEN_EXPIRED);
         }
 
         String userCode = rt.getUserCode();
@@ -240,13 +241,13 @@ public class AuthController {
 
         refreshTokenRepository.save(newRt);
 
-        // ⭐ 修正 cookie
+        // cookie
         ResponseCookie cookie = ResponseCookie.from("refreshToken", newRefreshToken)
                 .httpOnly(true)
-                .secure(false) // 👉 production 要 true
-                .path("/") // ⭐ 改這個
+                .secure(false) // production 要 true
+                .path("/")
                 .maxAge(Duration.ofDays(7))
-                .sameSite("Lax") // ⭐ 改這個
+                .sameSite("Lax")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -254,14 +255,14 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
 
-    // 🔥 忘記密碼 - 發送驗證碼
+    // 忘記密碼 - 發送驗證碼
     @PostMapping("/forgot-password/request")
     public String request(@RequestBody ForgotPasswordRequest req) {
         userAccountService.forgotPasswordRequest(req);
         return "驗證碼已寄出";
     }
 
-    // 🔥 忘記密碼 - 重設
+    // 忘記密碼 - 重設
     @PostMapping("/forgot-password/reset")
     public String reset(@RequestBody ResetPasswordRequest req) {
         userAccountService.resetPassword(req);

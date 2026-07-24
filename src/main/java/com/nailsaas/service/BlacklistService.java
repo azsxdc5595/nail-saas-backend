@@ -12,6 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.nailsaas.domain.BlacklistRequest;
 import com.nailsaas.entity.ManicuristBlacklist;
+import com.nailsaas.enums.ErrorCodeEnum;
+import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.BlacklistRepository;
 
 @Service
@@ -33,7 +35,7 @@ public class BlacklistService {
         boolean exists = blacklistRepository.existsByManicuristIdAndUserId(req.getManicuristId(), req.getUserId());
 
         if (exists) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "已經加入黑名單");
+            throw new BusinessException(ErrorCodeEnum.BLACKLIST_ALREADY_EXISTS);
         }
 
         // 建立 entity
@@ -58,7 +60,7 @@ public class BlacklistService {
         );
 
         if (n == 0) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "此用戶不存在於黑名單");
+            throw new BusinessException(ErrorCodeEnum.BLACKLIST_NOT_FOUND);
         }
 
         return "移除成功";

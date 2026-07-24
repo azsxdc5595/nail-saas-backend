@@ -18,9 +18,11 @@ import com.nailsaas.entity.Manicurist;
 import com.nailsaas.entity.Shop;
 import com.nailsaas.entity.ShopInviteCode;
 import com.nailsaas.entity.UserAccount;
+import com.nailsaas.enums.ErrorCodeEnum;
 import com.nailsaas.enums.InviteCodeStatusEnum;
 import com.nailsaas.enums.ManicuristStatusEnum;
 import com.nailsaas.enums.RoleEnum;
+import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.ManicuristRepository;
 import com.nailsaas.repository.ShopInviteCodeRepository;
 import com.nailsaas.repository.ShopRepository;
@@ -56,7 +58,7 @@ public class ShopService {
         Optional<Shop> optionalShop = shopRepository.findByShopName(req.getShopName());
 
         if (optionalShop.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "店名已被使用");
+            throw new BusinessException(ErrorCodeEnum.SHOP_NAME_ALREADY_EXISTS);
         }
         Shop shop = new Shop();
         shop.setCode(generate.generateUuid());
@@ -79,21 +81,21 @@ public class ShopService {
         try {
             manicuristRepository.save(manicurist);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("已經是美甲師");
+            throw new BusinessException(ErrorCodeEnum.MANICURIST_ALREADY_EXISTS);
         }
     }
 
     // 查詢
     public UserAccount getCurrentUser() {
         return userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到使用者"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
     }
 
     // 查詢
     public GetShopInfoReponse me() {
         UserAccount userAccount = getCurrentUser();
         Optional<Shop> optionalShop = Optional.ofNullable(shopRepository.findByUserId(userAccount.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到店家資料")));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SHOP_NOT_FOUND)));
         Shop shop = optionalShop.get();
         GetShopInfoReponse reponse = GetShopInfoReponse.builder().shopName(shop.getShopName()).phone(shop.getPhone()).description(shop.getDescription()).address(shop.getAddress()).build();
         return reponse;
@@ -104,7 +106,7 @@ public class ShopService {
     public String invite() {
         UserAccount userAccount = getCurrentUser();
         Shop shop = shopRepository.findByUserId(userAccount.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到店家資料"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SHOP_NOT_FOUND));
 
         Optional<ShopInviteCode> activeInviteCode = shopInviteCodeRepository.findByShopIdAndStatus(
                 shop.getId(),
@@ -146,14 +148,14 @@ public class ShopService {
 
         // UX 提示：一個使用者只能加入一間店家
         if (manicuristRepository.existsByUserId(userAccount.getId())) {
-            throw new RuntimeException("已經是美甲師");
+            throw new BusinessException(ErrorCodeEnum.MANICURIST_ALREADY_EXISTS);
         }
 
         ShopInviteCode invite = shopInviteCodeRepository.findByCode(req.getInviteCode())
                 .orElseThrow(() -> new RuntimeException("邀請碼不存在"));
 
         if (!InviteCodeStatusEnum.ACTIVE.getCode().equals(invite.getStatus())) {
-            throw new RuntimeException("邀請碼不可使用");
+            throw new BusinessException(ErrorCodeEnum.INVITE_CODE_INVALID);
         }
 
         if (invite.getExpireTime() != null &&
@@ -163,7 +165,7 @@ public class ShopService {
             invite.setUpdateTime(LocalDateTime.now());
             shopInviteCodeRepository.save(invite);
 
-            throw new RuntimeException("邀請碼已過期");
+            throw new BusinessException(ErrorCodeEnum.INVITE_CODE_EXPIRED);
         }
 
         int updated = shopInviteCodeRepository.useInviteCode(
@@ -173,7 +175,7 @@ public class ShopService {
         );
 
         if (updated != 1) {
-            throw new RuntimeException("邀請碼已被使用");
+            throw new BusinessException(ErrorCodeEnum.INVITE_CODE_USED);
         }
 
         Manicurist manicurist = new Manicurist();
@@ -188,7 +190,7 @@ public class ShopService {
         try {
             manicuristRepository.save(manicurist);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("已經是美甲師");
+            throw new BusinessException(ErrorCodeEnum.MANICURIST_ALREADY_EXISTS);
         }
     }
 

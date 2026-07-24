@@ -20,6 +20,8 @@ import com.nailsaas.domain.UpdatePasswordRequest;
 import com.nailsaas.domain.UpdateUserRequest;
 import com.nailsaas.entity.EmailVerification;
 import com.nailsaas.entity.UserAccount;
+import com.nailsaas.enums.ErrorCodeEnum;
+import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.EmailVerificationRepository;
 import com.nailsaas.repository.UserAccountRepository;
 import com.nailsaas.util.Generate;
@@ -53,7 +55,7 @@ public class UserAccountService {
         Optional<UserAccount> userAccount = userAccountRepository.findByEmail(user.getEmail());
 
         if (userAccount.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email已被使用");
+            throw new BusinessException(ErrorCodeEnum.USER_EMAIL_DUPLICATE);
         }
 
         user.setCode(generate.generateUuid());
@@ -73,7 +75,7 @@ public class UserAccountService {
     // 查詢
     public GetUserInfoReponse getCurrentUser() {
         Optional<UserAccount> optionalUserAccount = Optional.ofNullable(userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到使用者")));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND)));
         UserAccount userAccount = optionalUserAccount.get();
         GetUserInfoReponse reponse = GetUserInfoReponse.builder().userName(userAccount.getUserName()).email(userAccount.getEmail()).phone(userAccount.getPhone()).build();
         return reponse;
@@ -82,7 +84,7 @@ public class UserAccountService {
     // 註銷
     public void cancelAccount() {
         UserAccount user = userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到使用者"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
 
         userAccountRepository.delete(user);
     }
@@ -91,7 +93,7 @@ public class UserAccountService {
 
         UserAccount user = userAccountRepository
                 .findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "找不到使用者"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
 
         // 只更新有傳的欄位
         if (req.getUserName() != null) {
@@ -110,11 +112,11 @@ public class UserAccountService {
     public void updatePassword(UpdatePasswordRequest req) {
 
         UserAccount user = userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "找不到使用者"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
 
         // 驗證舊密碼
         if (!passwordEncoder.matches(req.getOldPassword(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "舊密碼錯誤");
+            throw new BusinessException(ErrorCodeEnum.USER_OLD_PASSWORD_INCORRECT);
         }
 
         // 設定新密碼（加密）
@@ -132,7 +134,7 @@ public class UserAccountService {
         String code = SecurityUtil.getCurrentUserCode();
         
         UserAccount user = userAccountRepository.findByCode(code)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "找不到使用者"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
 
         // 防重發（60秒內）
         Optional<EmailVerification> latest = emailVerificationRepository.findTopByUserCodeAndEmailOrderByCreateTimeDesc(code, req.getEmail());
@@ -141,14 +143,14 @@ public class UserAccountService {
             LocalDateTime lastTime = latest.get().getCreateTime();
 
             if (lastTime.isAfter(LocalDateTime.now().minusSeconds(60))) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "請稍後再試（60秒限制）");
+                throw new BusinessException(ErrorCodeEnum.AUTH_SEND_TOO_FREQUENT);
             }
         }
         
         Optional<UserAccount> userAccount = userAccountRepository.findByEmail(req.getEmail());
 
         if (userAccount.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email已被使用");
+            throw new BusinessException(ErrorCodeEnum.USER_EMAIL_DUPLICATE);
         }
         
         // 產生6碼驗證碼
@@ -179,30 +181,30 @@ public class UserAccountService {
         String code = SecurityUtil.getCurrentUserCode();
         
         EmailVerification ev = emailVerificationRepository.findTopByUserCodeAndEmailAndStatusOrderByCreateTimeDesc(code, req.getEmail(), "PENDING")
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "驗證資料不存在"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.AUTH_VERIFY_DATA_NOT_FOUND));
 
         // 過期
         if (ev.getExpireTime().isBefore(LocalDateTime.now())) {
             ev.setStatus("EXPIRED");
             emailVerificationRepository.save(ev);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "驗證碼已過期");
+            throw new BusinessException(ErrorCodeEnum.AUTH_VERIFY_CODE_EXPIRED);
         }
 
         // 錯誤次數過多
         if (ev.getFailCount() >= 5) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "驗證失敗過多，請重新取得驗證碼");
+            throw new BusinessException(ErrorCodeEnum.AUTH_VERIFY_FAILED_TOO_MANY);
         }
 
         // 驗證碼錯誤
         if (!ev.getVerifyCode().equals(req.getVerifyCode())) {
             ev.setFailCount(ev.getFailCount() + 1);
             emailVerificationRepository.save(ev);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "驗證碼錯誤");
+            throw new BusinessException(ErrorCodeEnum.AUTH_VERIFY_CODE_INCORRECT);
         }
 
         // 更新 Email
         UserAccount user = userAccountRepository.findByCode(code)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "找不到使用者"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
 
         user.setEmail(req.getEmail());
         user.setUpdateTime(LocalDateTime.now());
@@ -217,7 +219,7 @@ public class UserAccountService {
     public void forgotPasswordRequest(ForgotPasswordRequest req) {
 
         UserAccount user = userAccountRepository.findByEmail(req.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email不存在"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
 
         // 防重發（60秒）
         Optional<EmailVerification> latest =
@@ -226,7 +228,7 @@ public class UserAccountService {
 
         if (latest.isPresent() &&
             latest.get().getCreateTime().isAfter(LocalDateTime.now().minusSeconds(60))) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "請稍後再試");
+            throw new BusinessException(ErrorCodeEnum.AUTH_SEND_TOO_FREQUENT);
         }
 
         // 產生OTP
@@ -258,34 +260,34 @@ public class UserAccountService {
         EmailVerification ev =
             emailVerificationRepository
                 .findTopByEmailAndStatusOrderByCreateTimeDesc(req.getEmail(), "PENDING")
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "驗證資料不存在"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.AUTH_VERIFY_DATA_NOT_FOUND));
 
         // 過期檢查
         if (ev.getExpireTime().isBefore(LocalDateTime.now())) {
             ev.setStatus("EXPIRED");
             emailVerificationRepository.save(ev);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "驗證碼已過期");
+            throw new BusinessException(ErrorCodeEnum.AUTH_VERIFY_CODE_EXPIRED);
         }
 
         // 錯誤次數
         if (ev.getFailCount() >= 5) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "驗證失敗過多");
+            throw new BusinessException(ErrorCodeEnum.AUTH_VERIFY_FAILED_TOO_MANY);
         }
 
         // 驗證碼比對
         if (!ev.getVerifyCode().equals(req.getVerifyCode())) {
             ev.setFailCount(ev.getFailCount() + 1);
             emailVerificationRepository.save(ev);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "驗證碼錯誤");
+            throw new BusinessException(ErrorCodeEnum.AUTH_VERIFY_CODE_INCORRECT);
         }
 
         if (req.getNewPassword().length() < 8) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "密碼至少8碼");
+            throw new BusinessException(ErrorCodeEnum.AUTH_PASSWORD_TOO_SHORT);
         }
         
         // 更新密碼
         UserAccount user = userAccountRepository.findByEmail(req.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "找不到使用者"));
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
 
         String encoded = passwordEncoder.encode(req.getNewPassword());
 
