@@ -11,9 +11,9 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "MANICURIST_BLOCK_TIME", schema = "NSAS")
+@Table(name = "RESERVATION_BLOCK_TIME", schema = "NSAS")
 @Data
-public class ManicuristBlockTime {
+public class ReservationBlockTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_block_time")

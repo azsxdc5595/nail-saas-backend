@@ -13,4 +13,4 @@
 
 ## Consequences
 
-`NAIL_SAMPLE`、`RESERVATION`、`RESERVATION_SERVICE` 與主鍵產生策略已依實際 Schema 修正。未來所有資料庫變更必須同時提交 migration、詳細 Table 文件與 Index Design；DML 僅保存可重複執行且有用途說明的 seed data。
+`NAIL_SAMPLE`、`RESERVATION`、`SERVICE_ITEM` 與主鍵產生策略已依實際 Schema 修正。未來所有資料庫變更必須同時提交 migration、詳細 Table 文件與 Index Design；DML 僅保存可重複執行且有用途說明的 seed data。

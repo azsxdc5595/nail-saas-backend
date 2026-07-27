@@ -43,9 +43,9 @@
 | Manicurist | Review Required | 美甲師建立、個人資料及店家歸屬。 | MANICURIST | Product Requirement、DDL、Permission Rules |
 | Service Item | Review Required | 建立、查詢、修改及刪除服務項目。 | SERVICE_ITEM | DDL、API、User Flow |
 | Portfolio | Review Required | 美甲作品展示及作品管理。 | NAIL_SAMPLE | Product Requirement、DDL、Permission Rules |
-| Reservation Block | Review Required | 管理不可預約時段。 | MANICURIST_BLOCK_TIME | Reservation Conflict Rules、Index Design |
+| Reservation Block | Review Required | 管理不可預約時段。 | RESERVATION_BLOCK_TIME | Reservation Conflict Rules、Index Design |
 | Blacklist | Review Required | 美甲師維護會員黑名單。 | MANICURIST_BLACKLIST | Product Requirement、DDL、Index Design |
-| Reservation | In Design | 預約建立、接受、取消、完成及狀態管理。 | RESERVATION<br>RESERVATION_SERVICE | Product Requirement、User Flow、DDL、API、Index Design |
+| Reservation | In Design | 預約建立、接受、取消、完成及狀態管理。 | RESERVATION<br>RESERVATION_ITEM | Product Requirement、User Flow、DDL、API、Index Design |
 | Review | In Design | 服務完成後雙向評價。 | REVIEW | Product Requirement、DDL、API |
 | Portfolio Work | Planned | 美甲師作品集管理。 | MANICURIST_WORK | Product Requirement、ADR、DDL |
 | Promotion | Planned | 優惠活動及促銷管理。 | PROMOTION | Product Requirement、ADR、DDL |

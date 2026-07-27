@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class ApplyManicuristBlockTimeRequest {
+public class ApplyReservationBlockTimeRequest {
 
     private Long manicuristId;
 

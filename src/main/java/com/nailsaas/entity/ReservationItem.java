@@ -11,10 +11,10 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "RESERVATION_SERVICE", schema = "NSAS")
-@IdClass(ReservationServiceId.class)
+@Table(name = "RESERVATION_ITEM", schema = "NSAS")
+@IdClass(ReservationItemId.class)
 @Data
-public class ReservationService {
+public class ReservationItem {
 
     @Id
     @Column(name = "RESERVATION_ID")

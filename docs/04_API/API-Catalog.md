@@ -31,7 +31,7 @@
 | Shop | /shop | Review Required | Shop.md |
 | Manicurist | /manicurist | Review Required | Manicurist.md |
 | Reservation | /reservation | Planned | Reservation.md |
-| Reservation Block | /manicuristBlockTime | Review Required | Reservation-Block.md |
+| Reservation Block Time | /reservationBlockTime | Review Required | ReservationBlockTime.md |
 | Portfolio | /nailSample | Review Required | Portfolio.md |
 | Service Item | /api/services | Review Required | Service-Item.md |
 | Blacklist | /blacklist | Review Required | Blacklist.md |
