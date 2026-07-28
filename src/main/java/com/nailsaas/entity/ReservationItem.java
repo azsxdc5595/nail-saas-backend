@@ -1,6 +1,5 @@
 package com.nailsaas.entity;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -28,10 +27,10 @@ public class ReservationItem {
     private Long serviceId;
 
     @Column(name = "PRICE")
-    private BigDecimal price;
+    private Integer price;
 
     @Column(name = "DURATION_MIN")
-    private Long durationMin;
+    private Integer durationMin;
 
     @Column(name = "CREATE_TIME")
     private LocalDateTime createTime;
