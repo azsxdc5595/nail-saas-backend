@@ -22,6 +22,9 @@ public enum ErrorCodeEnum {
     INVITE_CODE_USED("INVITE_002", HttpStatus.BAD_REQUEST, "邀請碼已被使用"),
     INVITE_CODE_EXPIRED("INVITE_003", HttpStatus.BAD_REQUEST, "邀請碼已過期"),
     INVITE_CODE_INVALID("INVITE_004", HttpStatus.BAD_REQUEST, "邀請碼不可使用"),
+    
+    // Manicurist
+    NAIL_SAMPLE_NOT_FOUND("NAIL_SAMPLE_001", HttpStatus.BAD_REQUEST, "款式不存在"),
 
     // Auth
     AUTH_EMAIL_NOT_VERIFIED("AUTH_001", HttpStatus.BAD_REQUEST, "請先完成Email驗證"),
