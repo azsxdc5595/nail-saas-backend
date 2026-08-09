@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,7 +18,21 @@ public interface NailSampleRepository extends JpaRepository<NailSample, Long> {
     List<NailSample> findByManicuristId(Long manicuristId);
     
     /**
-     * 使用者搜尋作品
+     * 使用者搜尋作品。
+     *
+     * <p>
+     * 會先依照搜尋條件篩選符合的作品，
+     * 再依照 Pageable 取得目前頁面的資料。
+     * </p>
+     *
+     * @param description 作品描述，支援模糊搜尋
+     * @param styleCode 作品風格代碼
+     * @param seasonCode 季節代碼
+     * @param mainColorCode 主色系代碼
+     * @param minPrice 最低價格
+     * @param maxPrice 最高價格
+     * @param pageable 分頁條件
+     * @return 目前頁面的作品資料，以及符合條件的總筆數
      */
     @Query("""
         SELECT n
@@ -30,13 +46,14 @@ public interface NailSampleRepository extends JpaRepository<NailSample, Long> {
           AND (:maxPrice IS NULL OR n.price <= :maxPrice)
         ORDER BY n.createTime DESC
     """)
-    List<NailSample> search(
+    Page<NailSample> search(
             @Param("description") String description,
             @Param("styleCode") String styleCode,
             @Param("seasonCode") String seasonCode,
             @Param("mainColorCode") String mainColorCode,
             @Param("minPrice") BigDecimal minPrice,
-            @Param("maxPrice") BigDecimal maxPrice);
+            @Param("maxPrice") BigDecimal maxPrice,
+            Pageable pageable);
 
     /**
      * 查詢作品詳細

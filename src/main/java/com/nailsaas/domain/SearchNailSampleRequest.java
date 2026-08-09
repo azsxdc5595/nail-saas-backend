@@ -2,10 +2,14 @@ package com.nailsaas.domain;
 
 import java.math.BigDecimal;
 
+import com.nailsaas.util.CustomPage;
+
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class SearchNailSampleRequest {
+@EqualsAndHashCode(callSuper = true)
+public class SearchNailSampleRequest extends CustomPage {
 
     /** 作品描述 */
     private String description;
@@ -24,11 +28,4 @@ public class SearchNailSampleRequest {
 
     /** 最高價格 */
     private BigDecimal maxPrice;
-
-    /** 頁碼 */
-    private Integer pageNo;
-
-    /** 每頁筆數 */
-    private Integer pageSize;
-
 }

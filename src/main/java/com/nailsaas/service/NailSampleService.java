@@ -1,11 +1,14 @@
 
 package com.nailsaas.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.nailsaas.domain.ApplyNailSampleRequest;
@@ -54,6 +57,7 @@ public class NailSampleService {
         nailSample.setSeasonCode(req.getSeasonCode());
         nailSample.setMainColorCode(req.getMainColorCode());
         nailSample.setEnabled(req.getEnabled() == null ? 1 : req.getEnabled());
+        nailSample.setCreateTime(LocalDateTime.now());
         nailSampleRepository.save(nailSample);
     }
     
@@ -63,15 +67,24 @@ public class NailSampleService {
     }
     
     // 使用者搜尋作品
+    /**
+     * 使用者搜尋作品
+     */
     public SearchNailSampleResponse searchNailSample(SearchNailSampleRequest req) {
 
-        List<NailSample> nailSampleList = nailSampleRepository.search(
+        Pageable pageable = req.toPageable();
+
+        Page<NailSample> nailSamplePage = nailSampleRepository.search(
                 req.getDescription(),
                 req.getStyleCode(),
                 req.getSeasonCode(),
                 req.getMainColorCode(),
                 req.getMinPrice(),
-                req.getMaxPrice());
+                req.getMaxPrice(),
+                pageable
+        );
+
+        List<NailSample> nailSampleList = nailSamplePage.getContent();
 
         List<SearchNailSampleData> dataList = new ArrayList<>();
 
@@ -92,8 +105,9 @@ public class NailSampleService {
         }
 
         SearchNailSampleResponse response = new SearchNailSampleResponse();
+
         response.setNailSampleList(dataList);
-        response.setTotalCount(dataList.size());
+        response.setTotalCount((int) nailSamplePage.getTotalElements());
 
         return response;
     }
