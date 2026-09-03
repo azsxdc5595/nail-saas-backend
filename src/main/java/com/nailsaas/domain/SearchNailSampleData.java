@@ -19,7 +19,7 @@ public class SearchNailSampleData {
     /** 價格 */
     private BigDecimal price;
 
-    /** 描述 */
+    /** 作品描述 */
     private String description;
 
     /** 作品風格 */

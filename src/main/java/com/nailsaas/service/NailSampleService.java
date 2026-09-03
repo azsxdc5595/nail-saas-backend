@@ -4,7 +4,6 @@ package com.nailsaas.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,41 +11,29 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.nailsaas.domain.ApplyNailSampleRequest;
-import com.nailsaas.domain.GetManicuristInfoRequest;
 import com.nailsaas.domain.GetNailSampleDetailRequest;
 import com.nailsaas.domain.GetNailSampleDetailResponse;
-import com.nailsaas.domain.GetNailSampleReponse;
 import com.nailsaas.domain.RemoveNailSampleRequest;
 import com.nailsaas.domain.SearchNailSampleData;
 import com.nailsaas.domain.SearchNailSampleRequest;
 import com.nailsaas.domain.SearchNailSampleResponse;
-import com.nailsaas.entity.Manicurist;
 import com.nailsaas.entity.NailSample;
 import com.nailsaas.enums.ErrorCodeEnum;
 import com.nailsaas.exception.BusinessException;
-import com.nailsaas.repository.ManicuristRepository;
 import com.nailsaas.repository.NailSampleRepository;
 
 @Service
 public class NailSampleService {
-    
-    @Autowired
-    private ManicuristRepository manicuristRepository;
-    
+
     @Autowired
     private NailSampleRepository nailSampleRepository;
 
-    // 美甲師查看自己的所有範例
-    public GetNailSampleReponse getNailSample(GetManicuristInfoRequest req) {
-        Optional<Manicurist> optionalManicurist = Optional.ofNullable(manicuristRepository.findByCode(req.getManicuristCode())
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.MANICURIST_NOT_FOUND)));
-        Manicurist manicurist = optionalManicurist.get();
-        List<NailSample> nailSampleList = nailSampleRepository.findByManicuristId(manicurist.getId());
-        GetNailSampleReponse reponse = GetNailSampleReponse.builder().nailSampleList(nailSampleList).build();
-        return reponse;
+    // 美甲師查看自己的作品
+    public SearchNailSampleResponse searchMyNailSample(SearchNailSampleRequest req) {
+        return executeNailSampleSearch(req);
     }
 
-    // 美甲師新增自己的範例
+    // 美甲師新增自己的作品
     public void addNailSample(ApplyNailSampleRequest req) {
         NailSample nailSample = new NailSample();
         nailSample.setManicuristId(req.getManicuristId());
@@ -60,35 +47,59 @@ public class NailSampleService {
         nailSample.setCreateTime(LocalDateTime.now());
         nailSampleRepository.save(nailSample);
     }
-    
-    // 美甲師移除自己的範例
+
+    // 美甲師移除自己的作品
     public void removeNailSample(RemoveNailSampleRequest req) {
         nailSampleRepository.deleteById(req.getSampleId());
     }
-    
-    // 使用者搜尋作品
-    /**
-     * 使用者搜尋作品
-     */
+
+    // 查詢某一位美甲師的作品
     public SearchNailSampleResponse searchNailSample(SearchNailSampleRequest req) {
+        return executeNailSampleSearch(req);
+    }
+
+    // 查看作品詳細資訊
+    public GetNailSampleDetailResponse detailNailSample(GetNailSampleDetailRequest req) {
+
+        NailSample nailSample = nailSampleRepository
+                .findByIdAndEnabled(req.getSampleId(), 1)
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.NAIL_SAMPLE_NOT_FOUND));
+
+        GetNailSampleDetailResponse response = new GetNailSampleDetailResponse();
+
+        response.setSampleId(nailSample.getId());
+        response.setManicuristId(nailSample.getManicuristId());
+        response.setImageUrl(nailSample.getImageUrl());
+        response.setPrice(nailSample.getPrice());
+        response.setDescription(nailSample.getDescription());
+        response.setStyleCode(nailSample.getStyleCode());
+        response.setSeasonCode(nailSample.getSeasonCode());
+        response.setMainColorCode(nailSample.getMainColorCode());
+
+        return response;
+    }
+
+    // 條件查詢作品
+    private SearchNailSampleResponse executeNailSampleSearch(SearchNailSampleRequest req) {
 
         Pageable pageable = req.toPageable();
 
-        Page<NailSample> nailSamplePage = nailSampleRepository.search(
-                req.getDescription(),
-                req.getStyleCode(),
-                req.getSeasonCode(),
-                req.getMainColorCode(),
-                req.getMinPrice(),
-                req.getMaxPrice(),
-                pageable
-        );
-
-        List<NailSample> nailSampleList = nailSamplePage.getContent();
+        Page<NailSample> nailSamplePage =
+                nailSampleRepository.search(
+                    req.getManicuristCode(),
+                    req.getDisplayName(),
+                    req.getDescription(),
+                    req.getStyleCode(),
+                    req.getSeasonCode(),
+                    req.getMainColorCode(),
+                    req.getMinPrice(),
+                    req.getMaxPrice(),
+                    pageable
+                );
 
         List<SearchNailSampleData> dataList = new ArrayList<>();
 
-        for (NailSample nailSample : nailSampleList) {
+        for (NailSample nailSample : nailSamplePage.getContent()) {
 
             SearchNailSampleData data = new SearchNailSampleData();
 
@@ -107,28 +118,8 @@ public class NailSampleService {
         SearchNailSampleResponse response = new SearchNailSampleResponse();
 
         response.setNailSampleList(dataList);
-        response.setTotalCount((int) nailSamplePage.getTotalElements());
-
-        return response;
-    }
-    
-    // 使用者查看作品詳細
-    public GetNailSampleDetailResponse detailNailSample(GetNailSampleDetailRequest req) {
-
-        NailSample nailSample = nailSampleRepository
-                .findByIdAndEnabled(req.getSampleId(), 1)
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.NAIL_SAMPLE_NOT_FOUND));
-
-        GetNailSampleDetailResponse response = new GetNailSampleDetailResponse();
-
-        response.setSampleId(nailSample.getId());
-        response.setManicuristId(nailSample.getManicuristId());
-        response.setImageUrl(nailSample.getImageUrl());
-        response.setPrice(nailSample.getPrice());
-        response.setDescription(nailSample.getDescription());
-        response.setStyleCode(nailSample.getStyleCode());
-        response.setSeasonCode(nailSample.getSeasonCode());
-        response.setMainColorCode(nailSample.getMainColorCode());
+        response.setTotalCount((int) nailSamplePage.getTotalElements()
+        );
 
         return response;
     }

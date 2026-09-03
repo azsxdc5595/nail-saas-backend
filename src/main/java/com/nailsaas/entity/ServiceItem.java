@@ -1,5 +1,6 @@
 package com.nailsaas.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -31,7 +32,7 @@ public class ServiceItem {
     private String serviceName;
 
     @Column(name = "PRICE")
-    private Integer price;
+    private BigDecimal price;
 
     @Column(name = "DURATION_MIN")
     private Integer durationMin;
