@@ -27,7 +27,7 @@ public class UserAccountController {
         return service.getCurrentUser();
     }
 
-    // 修改名稱
+    // 用戶修改個人資訊
     @PatchMapping("/me")
     public void updateMe(@RequestBody UpdateUserRequest req) {
         service.updateMe(req);

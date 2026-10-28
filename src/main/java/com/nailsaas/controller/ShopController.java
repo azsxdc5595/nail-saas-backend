@@ -27,6 +27,7 @@ public class ShopController {
         service.createShop(req);
     }
 
+    // 查詢自己店家的資訊
     @GetMapping("/me")
     public GetShopInfoReponse me() {
         return service.me();

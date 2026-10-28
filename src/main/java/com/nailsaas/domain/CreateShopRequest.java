@@ -7,7 +7,7 @@ public class CreateShopRequest {
     
     private String shopName;
     
-    private Long addressId;
+    private String address;
     
     private String phone;
     

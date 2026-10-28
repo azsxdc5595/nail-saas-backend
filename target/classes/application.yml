@@ -8,8 +8,8 @@ spring:
     password: ${MAIL_PASSWORD}
 
   datasource:
-    #url: jdbc:oracle:thin:@www.areszone.net:1525/T05B
-    url: jdbc:oracle:thin:@localhost:1525/T05B
+#    url: jdbc:oracle:thin:@www.areszone.net:1525/T05B
+    url: jdbc:oracle:thin:@localhost:1521/XEPDB1
     username: NSAS
     password: nsas0322
     driver-class-name: oracle.jdbc.OracleDriver
@@ -34,6 +34,6 @@ mail:
     path: classpath:mail-config.txt
     
 jwt:
-  secret: your-super-secret-key-your-super-secret-key
+  secret: NSAS_2026_ARES_JWT_SECRET_9f2KxLmP8vRwQaT3hYzNc6DsUb
   access-expiration: 900000        # 15分鐘
   refresh-expiration: 604800000    # 7天

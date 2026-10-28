@@ -41,7 +41,11 @@ public enum ErrorCodeEnum {
 
     // Blacklist
     BLACKLIST_ALREADY_EXISTS("BLACKLIST_001", HttpStatus.CONFLICT, "已經加入黑名單"),
-    BLACKLIST_NOT_FOUND("BLACKLIST_002", HttpStatus.NOT_FOUND, "此用戶不存在於黑名單");
+    BLACKLIST_NOT_FOUND("BLACKLIST_002", HttpStatus.NOT_FOUND, "此用戶不存在於黑名單"),
+    
+    // Address
+    ADDRESS_INVALID("ADDRESS_001", HttpStatus.BAD_REQUEST, "地址格式錯誤"),
+    ADDRESS_NOT_FOUND("ADDRESS_002", HttpStatus.NOT_FOUND, "找不到對應的縣市或行政區");
 
     private final String code;
     private final HttpStatus status;

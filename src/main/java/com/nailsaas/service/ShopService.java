@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nailsaas.domain.CreateShopRequest;
 import com.nailsaas.domain.GetShopInfoReponse;
 import com.nailsaas.domain.JoinShopRequest;
+import com.nailsaas.entity.Address;
 import com.nailsaas.entity.Manicurist;
 import com.nailsaas.entity.Shop;
 import com.nailsaas.entity.ShopInviteCode;
@@ -21,6 +22,7 @@ import com.nailsaas.enums.InviteCodeStatusEnum;
 import com.nailsaas.enums.ManicuristStatusEnum;
 import com.nailsaas.enums.RoleEnum;
 import com.nailsaas.exception.BusinessException;
+import com.nailsaas.repository.AddressRepository;
 import com.nailsaas.repository.ManicuristRepository;
 import com.nailsaas.repository.ShopInviteCodeRepository;
 import com.nailsaas.repository.ShopRepository;
@@ -42,7 +44,10 @@ public class ShopService {
     
     @Autowired
     private ShopRepository shopRepository;
-
+    
+    @Autowired
+    private AddressService addressService;
+    
     @Autowired
     private Generate generate;
 
@@ -58,10 +63,12 @@ public class ShopService {
         if (optionalShop.isPresent()) {
             throw new BusinessException(ErrorCodeEnum.SHOP_NAME_ALREADY_EXISTS);
         }
+        Address address = addressService.parseAddress(req.getAddress());
         Shop shop = new Shop();
         shop.setCode(generate.generateUuid());
         shop.setShopName(req.getShopName());
-        shop.setAddressId(req.getAddressId());
+        shop.setAddress(req.getAddress());
+        shop.setAddressId(address.getId());
         shop.setPhone(req.getPhone());
         shop.setDescription(req.getDescription());
         shop.setCreateTime(LocalDateTime.now());
