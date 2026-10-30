@@ -11,8 +11,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class SearchServiceItemRequest extends CustomPage {
 
-    /** 美甲師代碼 */
-    private String manicuristCode;
+    private String userCode;
     
     /** 服務名稱 */
     private String serviceName;
@@ -29,7 +28,7 @@ public class SearchServiceItemRequest extends CustomPage {
     /** 最高項目所需時間 */
     private Integer maxDurationMin;
 
-    /** 作品描述 */
+    /** 作品貼文描述 */
     private String description;
 
 }

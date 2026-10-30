@@ -6,15 +6,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nailsaas.domain.ConfirmUpdateEmailRequest;
 import com.nailsaas.domain.ForgotPasswordRequest;
 import com.nailsaas.domain.GetUserInfoReponse;
 import com.nailsaas.domain.ResetPasswordRequest;
+import com.nailsaas.domain.RegisterRequest;
 import com.nailsaas.domain.UpdateEmailRequest;
 import com.nailsaas.domain.UpdatePasswordRequest;
 import com.nailsaas.domain.UpdateUserRequest;
@@ -51,20 +51,23 @@ public class UserAccountService {
     }
     
     // 新增帳號
-    public UserAccount register(UserAccount user) {
-        Optional<UserAccount> userAccount = userAccountRepository.findByEmail(user.getEmail());
+    public UserAccount register(RegisterRequest req) {
+        Optional<UserAccount> userAccount = userAccountRepository.findByEmail(req.getEmail());
 
         if (userAccount.isPresent()) {
             throw new BusinessException(ErrorCodeEnum.USER_EMAIL_DUPLICATE);
         }
 
+        validateNewPasswordLength(req.getPassword());
+        UserAccount user = new UserAccount();
         user.setCode(generate.generateUuid());
-        user.setUserName(user.getUserName());
-        user.setPhone(user.getPhone());
+        user.setUserName(req.getUserName());
+        user.setEmail(req.getEmail());
+        user.setPhone(req.getPhone());
         user.setCreateTime(LocalDateTime.now());
 
         // 密碼加密
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
         
         // 帳號尚未驗證
         user.setVerified("0");
@@ -89,6 +92,7 @@ public class UserAccountService {
         userAccountRepository.delete(user);
     }
 
+    @Transactional
     public void updateMe(UpdateUserRequest req) {
 
         UserAccount user = userAccountRepository
@@ -109,6 +113,7 @@ public class UserAccountService {
         userAccountRepository.save(user);
     }
 
+    @Transactional
     public void updatePassword(UpdatePasswordRequest req) {
 
         UserAccount user = userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
@@ -118,6 +123,8 @@ public class UserAccountService {
         if (!passwordEncoder.matches(req.getOldPassword(), user.getPassword())) {
             throw new BusinessException(ErrorCodeEnum.USER_OLD_PASSWORD_INCORRECT);
         }
+
+        validateNewPasswordLength(req.getNewPassword());
 
         // 設定新密碼（加密）
         String encodedPassword = passwordEncoder.encode(req.getNewPassword());
@@ -281,9 +288,7 @@ public class UserAccountService {
             throw new BusinessException(ErrorCodeEnum.AUTH_VERIFY_CODE_INCORRECT);
         }
 
-        if (req.getNewPassword().length() < 8) {
-            throw new BusinessException(ErrorCodeEnum.AUTH_PASSWORD_TOO_SHORT);
-        }
+        validateNewPasswordLength(req.getNewPassword());
         
         // 更新密碼
         UserAccount user = userAccountRepository.findByEmail(req.getEmail())
@@ -299,6 +304,12 @@ public class UserAccountService {
         // 標記完成
         ev.setStatus("VERIFIED");
         emailVerificationRepository.save(ev);
+    }
+
+    private void validateNewPasswordLength(String newPassword) {
+        if (newPassword == null || newPassword.length() < 8) {
+            throw new BusinessException(ErrorCodeEnum.AUTH_PASSWORD_TOO_SHORT);
+        }
     }
 
 }

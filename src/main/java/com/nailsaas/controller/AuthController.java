@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.nailsaas.domain.ForgotPasswordRequest;
 import com.nailsaas.domain.LoginRequest;
+import com.nailsaas.domain.RegisterRequest;
 import com.nailsaas.domain.ResetPasswordRequest;
 import com.nailsaas.domain.VerifyEmailRequest;
 import com.nailsaas.entity.EmailVerification;
@@ -39,6 +39,7 @@ import com.nailsaas.util.Generate;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
@@ -71,7 +72,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @Transactional
-    public ResponseEntity<?> register(@RequestBody UserAccount userAccount) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest userAccount) {
 
         UserAccount user= userAccountService.register(userAccount);
 
@@ -98,7 +99,7 @@ public class AuthController {
     }
     
     @PostMapping("/verify")
-    public Map<String, String> verify(@RequestBody VerifyEmailRequest req) {
+    public Map<String, String> verify(@Valid @RequestBody VerifyEmailRequest req) {
 
         String email = req.getEmail();
         String code = req.getVerifyCode();
@@ -156,7 +157,7 @@ public class AuthController {
     
     // 登入
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest req, HttpServletResponse response) {
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest req, HttpServletResponse response) {
 
         UserAccount user = userAccountRepository.findByEmail(req.getEmail())
                 .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
@@ -204,35 +205,54 @@ public class AuthController {
             @CookieValue(value = "refreshToken", required = false) String refreshToken,
             HttpServletResponse response) {
 
-        if (refreshToken == null) {
-            throw new BusinessException(ErrorCodeEnum.AUTH_REFRESH_TOKEN_NOT_FOUND);
+        // 1. 確認 Cookie 是否帶有 Refresh Token
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new BusinessException(
+                    ErrorCodeEnum.AUTH_REFRESH_TOKEN_NOT_FOUND
+            );
         }
 
+        // 2. 驗證 Refresh Token 的簽章、期限及 Token 類型
         try {
-            jwtUtil.validateToken(refreshToken);
+            jwtUtil.validateRefreshToken(refreshToken);
         } catch (ExpiredJwtException e) {
-            throw new BusinessException(ErrorCodeEnum.AUTH_REFRESH_TOKEN_EXPIRED);
-        } catch (JwtException e) {
-            throw new BusinessException(ErrorCodeEnum.AUTH_REFRESH_TOKEN_INVALID);
+            throw new BusinessException(
+                    ErrorCodeEnum.AUTH_REFRESH_TOKEN_EXPIRED
+            );
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new BusinessException(
+                    ErrorCodeEnum.AUTH_REFRESH_TOKEN_INVALID
+            );
         }
 
-        RefreshToken rt = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.AUTH_REFRESH_TOKEN_NOT_FOUND));
+        // 3. 從已驗證的 Refresh Token 取得使用者代碼
+        String userCode = jwtUtil.getUserCode(refreshToken);
 
-        if (rt.getExpireTime().isBefore(LocalDateTime.now())) {
-            throw new BusinessException(ErrorCodeEnum.AUTH_REFRESH_TOKEN_EXPIRED);
+        // 4. 比對 DB，確認 Token 與使用者代碼相符
+        RefreshToken rt = refreshTokenRepository
+                .findByUserCodeAndToken(userCode, refreshToken)
+                .orElseThrow(() ->
+                        new BusinessException(
+                                ErrorCodeEnum.AUTH_REFRESH_TOKEN_NOT_FOUND
+                        )
+                );
+
+        // 5. 確認 DB 紀錄的有效期限
+        if (rt.getExpireTime() == null
+                || !rt.getExpireTime().isAfter(LocalDateTime.now())) {
+            throw new BusinessException(
+                    ErrorCodeEnum.AUTH_REFRESH_TOKEN_EXPIRED
+            );
         }
 
-        String userCode = rt.getUserCode();
-
-        // ⭐ 刪掉舊 token（rotation）
+        // 6. 刪除舊 Refresh Token，執行 Token Rotation
         refreshTokenRepository.deleteByUserCode(userCode);
 
-        // 產生新 token
+        // 7. 產生新的 Access Token 與 Refresh Token
         String newAccessToken = jwtUtil.generateAccessToken(userCode);
         String newRefreshToken = jwtUtil.generateRefreshToken(userCode);
 
-        // 存新 refreshToken
+        // 8. 建立新的 Refresh Token 資料
         RefreshToken newRt = new RefreshToken();
         newRt.setUserCode(userCode);
         newRt.setToken(newRefreshToken);
@@ -241,30 +261,36 @@ public class AuthController {
 
         refreshTokenRepository.save(newRt);
 
-        // cookie
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", newRefreshToken)
+        // 9. 更新 HttpOnly Cookie
+        ResponseCookie cookie = ResponseCookie.from(
+                        "refreshToken",
+                        newRefreshToken
+                )
                 .httpOnly(true)
-                .secure(false) // production 要 true
-                .path("/")
+                .secure(false) // 正式 HTTPS 環境應設為 true
+                .path("/auth/refresh")
                 .maxAge(Duration.ofDays(7))
-                .sameSite("Lax")
+                .sameSite("Strict")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+        // 10. 只回傳新的 Access Token
+        return ResponseEntity.ok(
+                Map.of("accessToken", newAccessToken)
+        );
     }
 
     // 忘記密碼 - 發送驗證碼
     @PostMapping("/forgot-password/request")
-    public String request(@RequestBody ForgotPasswordRequest req) {
+    public String request(@Valid @RequestBody ForgotPasswordRequest req) {
         userAccountService.forgotPasswordRequest(req);
         return "驗證碼已寄出";
     }
 
     // 忘記密碼 - 重設
     @PostMapping("/forgot-password/reset")
-    public String reset(@RequestBody ResetPasswordRequest req) {
+    public String reset(@Valid @RequestBody ResetPasswordRequest req) {
         userAccountService.resetPassword(req);
         return "密碼已重設";
     }

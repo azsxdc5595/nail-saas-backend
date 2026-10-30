@@ -44,13 +44,14 @@ public interface ServiceItemRepository extends JpaRepository<ServiceItem, Long> 
         SELECT n
         FROM ServiceItem n
         JOIN Manicurist m ON m.id = n.manicuristId
+        LEFT JOIN UserAccount u ON u.id = m.userId
         WHERE (
-            :manicuristCode IS NOT NULL
+            :userCode IS NOT NULL
             OR n.isActive = 1
         )
           AND (
-            :manicuristCode IS NULL
-            OR m.code = :manicuristCode
+            :userCode IS NULL
+            OR u.code = :userCode
         )
           AND (
             :serviceName IS NULL
@@ -79,7 +80,7 @@ public interface ServiceItemRepository extends JpaRepository<ServiceItem, Long> 
         ORDER BY n.createTime DESC
     """)
     Page<ServiceItem> search(
-            @Param("manicuristCode") String manicuristCode,
+            @Param("userCode") String userCode,
             @Param("serviceName") String serviceName,
             @Param("minPrice") BigDecimal minPrice,
             @Param("maxPrice") BigDecimal maxPrice,

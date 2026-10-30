@@ -22,9 +22,15 @@ public enum ErrorCodeEnum {
     INVITE_CODE_USED("INVITE_002", HttpStatus.BAD_REQUEST, "邀請碼已被使用"),
     INVITE_CODE_EXPIRED("INVITE_003", HttpStatus.BAD_REQUEST, "邀請碼已過期"),
     INVITE_CODE_INVALID("INVITE_004", HttpStatus.BAD_REQUEST, "邀請碼不可使用"),
-    
-    // Manicurist
-    NAIL_SAMPLE_NOT_FOUND("NAIL_SAMPLE_001", HttpStatus.BAD_REQUEST, "款式不存在"),
+
+    // NailPost
+    NAIL_POST_NOT_FOUND("NAIL_POST_001", HttpStatus.BAD_REQUEST, "貼文不存在"),
+
+    // ServiceItem
+    SERVICE_ITEM_NOT_FOUND("SERVICE_ITEM_001", HttpStatus.BAD_REQUEST, "服務項目不存在"),
+
+    // Reservation block time
+    RESERVATION_BLOCK_NOT_FOUND("BLOCK_TIME_001", HttpStatus.NOT_FOUND, "不可預約時段不存在"),
 
     // Auth
     AUTH_EMAIL_NOT_VERIFIED("AUTH_001", HttpStatus.BAD_REQUEST, "請先完成Email驗證"),
@@ -42,10 +48,16 @@ public enum ErrorCodeEnum {
     // Blacklist
     BLACKLIST_ALREADY_EXISTS("BLACKLIST_001", HttpStatus.CONFLICT, "已經加入黑名單"),
     BLACKLIST_NOT_FOUND("BLACKLIST_002", HttpStatus.NOT_FOUND, "此用戶不存在於黑名單"),
-    
+
     // Address
     ADDRESS_INVALID("ADDRESS_001", HttpStatus.BAD_REQUEST, "地址格式錯誤"),
-    ADDRESS_NOT_FOUND("ADDRESS_002", HttpStatus.NOT_FOUND, "找不到對應的縣市或行政區");
+    ADDRESS_NOT_FOUND("ADDRESS_002", HttpStatus.NOT_FOUND, "找不到對應的縣市或行政區"),
+
+    // Permission
+    PERMISSION_DENIED("PERMISSION_001", HttpStatus.FORBIDDEN, "無權限操作此資源"),
+
+    // Request validation
+    REQUEST_INVALID("REQUEST_001", HttpStatus.BAD_REQUEST, "請求資料格式錯誤");
 
     private final String code;
     private final HttpStatus status;

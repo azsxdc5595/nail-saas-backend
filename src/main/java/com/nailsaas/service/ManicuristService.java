@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nailsaas.domain.GetManicuristInfoReponse;
 import com.nailsaas.domain.GetManicuristInfoRequest;
@@ -14,6 +15,7 @@ import com.nailsaas.entity.Manicurist;
 import com.nailsaas.enums.ErrorCodeEnum;
 import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.ManicuristRepository;
+import com.nailsaas.util.SecurityUtil;
 
 @Service
 public class ManicuristService {
@@ -21,11 +23,10 @@ public class ManicuristService {
     @Autowired
     private ManicuristRepository manicuristRepository;
     
+    @Transactional
     public void updateMe(UpdateManicuristRequest req) {
-
-        Optional<Manicurist> optionalManicurist = Optional.ofNullable(manicuristRepository.findByCode(req.getManicuristCode())
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.MANICURIST_NOT_FOUND)));
-        Manicurist manicurist = optionalManicurist.get();
+        Manicurist manicurist = manicuristRepository.findManicuristByUserCode(SecurityUtil.getCurrentUserCode())
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.MANICURIST_NOT_FOUND));
 
         // 只更新有傳的欄位
         if (req.getDisplayName() != null) {

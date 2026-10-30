@@ -5,10 +5,10 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class SearchNailSampleResponse {
+public class SearchNailPostResponse {
 
     /** 搜尋結果 */
-    private List<SearchNailSampleData> nailSampleList;
+    private List<SearchNailPostData> nailPostList;
 
     /** 總筆數 */
     private Integer totalCount;

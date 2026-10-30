@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import com.nailsaas.domain.ConfirmUpdateEmailRequest;
 import com.nailsaas.domain.GetUserInfoReponse;
 import com.nailsaas.domain.UpdateEmailRequest;
@@ -29,25 +31,25 @@ public class UserAccountController {
 
     // 用戶修改個人資訊
     @PatchMapping("/me")
-    public void updateMe(@RequestBody UpdateUserRequest req) {
+    public void updateMe(@Valid @RequestBody UpdateUserRequest req) {
         service.updateMe(req);
     }
 
     // 修改密碼
     @PatchMapping("/password")
-    public void updatePassword(@RequestBody UpdatePasswordRequest req) {
+    public void updatePassword(@Valid @RequestBody UpdatePasswordRequest req) {
         service.updatePassword(req);
     }
 
     // Email 驗證
     @PostMapping("/email/request")
-    public String requestEmailChange(@RequestBody UpdateEmailRequest req) {
+    public String requestEmailChange(@Valid @RequestBody UpdateEmailRequest req) {
         service.requestEmailChange(req);
         return "驗證碼已發送";
     }
 
     @PostMapping("/email/confirm")
-    public String confirmEmail(@RequestBody ConfirmUpdateEmailRequest req) {
+    public String confirmEmail(@Valid @RequestBody ConfirmUpdateEmailRequest req) {
         service.confirmEmail(req);
         return "Email修改成功";
     }

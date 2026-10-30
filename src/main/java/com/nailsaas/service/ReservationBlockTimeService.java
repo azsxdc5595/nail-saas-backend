@@ -3,10 +3,12 @@ package com.nailsaas.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nailsaas.domain.ApplyReservationBlockTimeRequest;
 import com.nailsaas.domain.GetManicuristInfoRequest;
@@ -18,6 +20,7 @@ import com.nailsaas.enums.ErrorCodeEnum;
 import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.ManicuristRepository;
 import com.nailsaas.repository.ReservationBlockTimeRepository;
+import com.nailsaas.util.SecurityUtil;
 
 @Service
 public class ReservationBlockTimeService {
@@ -39,9 +42,11 @@ public class ReservationBlockTimeService {
     }
 
     // 新增不可預約時間
+    @Transactional
     public void addBlockTime(ApplyReservationBlockTimeRequest req) {
+        Long manicuristId = getCurrentManicuristId();
         ReservationBlockTime blockTime = new ReservationBlockTime();
-        blockTime.setManicuristId(req.getManicuristId());
+        blockTime.setManicuristId(manicuristId);
         blockTime.setStartTime(req.getStartTime());
         blockTime.setEndTime(req.getEndTime());
         blockTime.setBlockType(req.getBlockType());
@@ -51,7 +56,22 @@ public class ReservationBlockTimeService {
     }
     
     // 移除不可預約時間
+    @Transactional
     public void removeBlockTime(RemoveReservationBlockTimeRequest req) {
-        reservationBlockTimeRepository.deleteById(req.getBlockId());
+        ReservationBlockTime blockTime = reservationBlockTimeRepository.findById(req.getBlockId())
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.RESERVATION_BLOCK_NOT_FOUND));
+        Long manicuristId = getCurrentManicuristId();
+        if (!Objects.equals(blockTime.getManicuristId(), manicuristId)) {
+            throw new BusinessException(ErrorCodeEnum.PERMISSION_DENIED);
+        }
+        reservationBlockTimeRepository.delete(blockTime);
+    }
+
+    private Long getCurrentManicuristId() {
+        Long manicuristId = manicuristRepository.searchManicuristIdByUserCode(SecurityUtil.getCurrentUserCode());
+        if (manicuristId == null) {
+            throw new BusinessException(ErrorCodeEnum.PERMISSION_DENIED);
+        }
+        return manicuristId;
     }
 }

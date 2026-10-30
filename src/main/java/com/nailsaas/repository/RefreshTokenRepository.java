@@ -9,7 +9,7 @@ import com.nailsaas.entity.RefreshToken;
 
 public interface RefreshTokenRepository extends CrudRepository<RefreshToken, Long> {
     
-    Optional<RefreshToken> findByToken(String token);
+    Optional<RefreshToken> findByUserCodeAndToken(String userCode, String token);
 
     void deleteByUserCode(String userCode);
 }

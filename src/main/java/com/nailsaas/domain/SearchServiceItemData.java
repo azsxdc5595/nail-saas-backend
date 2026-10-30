@@ -22,7 +22,7 @@ public class SearchServiceItemData {
     /** 項目所需時間 */
     private Integer durationMin;
     
-    /** 作品描述 */
+    /** 作品貼文描述 */
     private String description;
 
 }

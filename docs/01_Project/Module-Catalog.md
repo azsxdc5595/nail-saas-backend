@@ -2,7 +2,7 @@
 
 Version: 1.0.0  
 Status: Draft  
-Last Updated: 2026-07-28
+Last Updated: 2026-10-30
 
 ---
 
@@ -35,20 +35,20 @@ Last Updated: 2026-07-28
 | Shop Management | Review Required | 建立店家、邀請碼、加入店家及店家管理。 | SHOP<br>ADDRESS<br>SHOP_INVITE_CODE |
 | Manicurist | Review Required | 建立及維護美甲師資料與店家歸屬。 | MANICURIST |
 | Service Item | Review Required | 建立、查詢、修改及刪除服務項目。 | SERVICE_ITEM |
-| Portfolio | Review Required | 美甲作品展示及作品管理。 | NAIL_SAMPLE |
+| Portfolio | Review Required | 美甲作品貼文及多圖 metadata 展示與管理。 | NAIL_POST<br>NAIL_POST_IMAGE |
 | Reservation Block | Review Required | 管理不可預約時段。 | RESERVATION_BLOCK_TIME |
 | Blacklist | Review Required | 管理會員黑名單。 | MANICURIST_BLACKLIST |
 | Reservation | In Design | 建立、接受、取消、完成及管理預約。 | RESERVATION<br>RESERVATION_ITEM |
 | Review | In Design | 完成服務後建立雙向評價。 | REVIEW |
-| Portfolio Work | Planned | 管理美甲師作品集。 | MANICURIST_WORK |
+| Portfolio Work | Planned | 管理美甲師作品貼文集。 | MANICURIST_WORK |
 | Promotion | Planned | 管理優惠活動及促銷資訊。 | PROMOTION |
 | Off Day | Planned | 管理固定公休及特殊休假。 | MANICURIST_OFF_DAY |
-| Tag | Planned | 管理作品分類及標籤。 | N/A |
-| Search | Planned | 搜尋作品、美甲師及店家。 | N/A |
-| Favorite | Planned | 收藏作品及美甲師。 | N/A |
+| Tag | Planned | 管理作品貼文分類及標籤。 | N/A |
+| Search | Planned | 搜尋作品貼文、美甲師及店家。 | N/A |
+| Favorite | Planned | 收藏作品貼文及美甲師。 | N/A |
 | Chat | Planned | 提供會員與美甲師即時聊天。 | N/A |
 | Notification | Planned | 發送系統通知及預約通知。 | N/A |
-| Recommendation | Planned | 推薦作品及推薦美甲師。 | N/A |
+| Recommendation | Planned | 推薦作品貼文及推薦美甲師。 | N/A |
 
 ---
 

@@ -7,7 +7,7 @@
 | Project | Nail SaaS |
 | Version | v1.0.0 |
 | Status | Review Required |
-| Last Updated | 2026-07-28 |
+| Last Updated | 2026-10-30 |
 
 ---
 
@@ -37,7 +37,7 @@
 | Flow | Description | Status |
 |------|-------------|--------|
 | Member Reservation Journey | 會員完整預約流程 | Review Required |
-| Manicurist Portfolio Management | 美甲師作品管理 | Review Required |
+| Manicurist Portfolio Management | 美甲師作品貼文管理 | Review Required |
 | Shop Invitation | 店家邀請美甲師 | Review Required |
 
 ---
@@ -46,14 +46,14 @@
 
 ### Goal
 
-描述會員從搜尋作品到完成服務的完整產品流程。
+描述會員從搜尋作品貼文到完成服務的完整產品流程。
 
 ### Flow
 
 ```mermaid
 flowchart TD
-    A[搜尋作品]
-    B[查看作品]
+    A[搜尋作品貼文]
+    B[查看作品貼文]
     C[查看美甲師]
     D[開始聊天]
     E[送出預約]
@@ -82,25 +82,27 @@ flowchart TD
 
 ### Goal
 
-描述美甲師新增作品的基本流程。
+描述美甲師新增作品貼文的基本流程。
 
 ### Flow
 
 ```mermaid
 flowchart TD
     A[已登入美甲師]
-    B[送出新增作品請求]
-    C[建立 NAIL_SAMPLE]
-    D[作品可由作品查詢 API 取得]
+    B[送出新增作品貼文與圖片 metadata]
+    C[建立 NAIL_POST]
+    C --> C2[建立多筆 NAIL_POST_IMAGE]
+    D[作品貼文及排序圖片可由查詢 API 取得]
 
     A --> B
     B --> C
-    C --> D
+    C --> C2
+    C2 --> D
 ```
 
 ### Current Status
 
-目前僅完成作品資料建立流程。
+目前僅完成作品貼文資料建立流程。
 
 以下功能尚未完成設計：
 
@@ -108,7 +110,7 @@ flowchart TD
 - 發布狀態管理
 - Tag 管理
 - 權限驗證
-- 作品修改與刪除
+- 作品貼文修改與刪除
 
 ---
 
@@ -155,7 +157,7 @@ flowchart TD
 - 美甲師拒絕預約流程
 - 預約聊天流程
 - 黑名單管理流程
-- 收藏作品流程
+- 收藏作品貼文流程
 - 收藏美甲師流程
 - 通知推播流程
 - 優惠活動使用流程

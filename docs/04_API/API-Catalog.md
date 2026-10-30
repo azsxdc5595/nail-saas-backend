@@ -7,7 +7,7 @@
 | Project | Nail SaaS |
 | Version | v1.0.0 |
 | Status | Review Required |
-| Last Updated | 2026-07-28 |
+| Last Updated | 2026-10-30 |
 
 ---
 
@@ -26,15 +26,15 @@
 | Module | Base Path | Version | Status | Specification |
 |---------|-----------|---------|--------|---------------|
 | Health | `/api/health` | v1 | Implemented | Health.md |
-| Authentication | `/api/auth` | v1 | Review Required | Authentication.md |
-| User | `/api/users` | v1 | Review Required | User.md |
-| Shop | `/api/shops` | v1 | Review Required | Shop.md |
-| Manicurist | `/api/manicurists` | v1 | Review Required | Manicurist.md |
+| Authentication | `/auth` | v1 | Review Required | Authentication.md |
+| User | `/user` | v1 | Review Required | User.md |
+| Shop | `/shop` | v1 | Review Required | Shop.md |
+| Manicurist | `/manicurist` | v1 | Review Required | Manicurist.md |
 | Reservation | `/api/reservations` | v1 | Planned | Reservation.md |
-| Reservation Block Time | `/api/reservation-block-times` | v1 | Review Required | Reservation-Block-Time.md |
-| Portfolio | `/api/portfolio` | v1 | Review Required | Portfolio.md |
-| Service Item | `/api/service-items` | v1 | Review Required | Service-Item.md |
-| Blacklist | `/api/blacklists` | v1 | Review Required | Blacklist.md |
+| Reservation Block Time | `/reservationBlockTime` | v1 | Review Required | Reservation-Block-Time.md |
+| Portfolio | `/nailPost` | v1 | Review Required | Portfolio.md |
+| Service Item | `/serviceItem` | v1 | Review Required | Service-Item.md |
+| Blacklist | `/blacklist` | v1 | Review Required | Blacklist.md |
 | Review | `/api/reviews` | v1 | Planned | Review.md |
 | Notification | `/api/notifications` | v1 | Planned | Notification.md |
 

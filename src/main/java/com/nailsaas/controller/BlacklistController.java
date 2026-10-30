@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import com.nailsaas.domain.BlacklistRequest;
 import com.nailsaas.entity.ManicuristBlacklist;
 import com.nailsaas.service.BlacklistService;
@@ -23,17 +25,17 @@ public class BlacklistController {
     private BlacklistService service;
     
     @PostMapping("/getAll")
-    public List<ManicuristBlacklist> getBlacklistByManicuristId(@RequestBody BlacklistRequest req){
-        return service.getBlacklistByManicuristId(req);
+    public List<ManicuristBlacklist> getBlacklistByManicuristId(){
+        return service.getBlacklistByCurrentManicurist();
     }
 
     @PostMapping("/add")
-    public String addToBlacklist(@RequestBody BlacklistRequest req) {
+    public String addToBlacklist(@Valid @RequestBody BlacklistRequest req) {
         return service.addToBlacklist(req);
     }
     
     @DeleteMapping("/remove")
-    public String removeFromBlacklist(@RequestBody BlacklistRequest req) {
+    public String removeFromBlacklist(@Valid @RequestBody BlacklistRequest req) {
         return service.removeFromBlacklist(req);
     }
 }

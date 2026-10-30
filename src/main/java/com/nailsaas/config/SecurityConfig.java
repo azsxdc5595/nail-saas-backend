@@ -41,7 +41,11 @@ public class SecurityConfig {
             // 權限控管
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/auth/**",
+                    "/auth/register",
+                    "/auth/verify",
+                    "/auth/login",
+                    "/auth/refresh",
+                    "/auth/forgot-password/**",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/error"
@@ -66,7 +70,7 @@ public class SecurityConfig {
         ));
 
         configuration.setAllowedMethods(List.of(
-                "GET", "POST", "PUT", "DELETE", "OPTIONS"
+                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
         ));
 
         configuration.setAllowedHeaders(List.of(

@@ -7,7 +7,7 @@
 | Project | Nail SaaS |
 | Version | v1.0.0 |
 | Status | Review Required |
-| Last Updated | 2026-07-28 |
+| Last Updated | 2026-10-30 |
 
 ---
 
@@ -37,9 +37,7 @@
 
 ## Current Index Baseline
 
-目前正式存在之索引，請參閱：
-
-- `NSAS-Schema-Baseline.md`
+目前索引定義以 `NSAS-Schema-Rebuild.sql` 為準。`NSAS-Schema-Baseline.md` 是較早的快照。
 
 本文件僅描述索引需求與設計方向，不重複列出 Oracle Data Dictionary 已存在之索引。
 
@@ -57,7 +55,8 @@
 | SHOP_INVITE_CODE | 驗證邀請碼、查詢有效邀請碼 | CODE、SHOP_ID、STATUS | CODE（PK）、`(SHOP_ID, STATUS)` | Review Required |
 | RESERVATION_BLOCK_TIME | 查詢不可預約時段 | MANICURIST_ID、START_TIME、END_TIME | `(MANICURIST_ID, START_TIME, END_TIME)` | Verified |
 | MANICURIST_BLACKLIST | 查詢黑名單、判斷是否封鎖 | MANICURIST_ID、USER_ID | MANICURIST_ID、`(MANICURIST_ID, USER_ID)`（Unique） | Review Required |
-| NAIL_SAMPLE | 查詢美甲師作品 | MANICURIST_ID | MANICURIST_ID | Review Required |
+| NAIL_POST | 搜尋及分頁美甲師作品貼文 | MANICURIST_ID、ENABLED、CREATE_TIME | 評估 `(MANICURIST_ID, ENABLED, CREATE_TIME)` | Review Required |
+| NAIL_POST_IMAGE | 依貼文排序取得圖片 | POST_ID、SORT_ORDER | `(POST_ID, SORT_ORDER)` | Verified |
 
 ---
 
@@ -107,7 +106,8 @@
 
 | Document | Purpose |
 |----------|---------|
-| NSAS-Schema-Baseline.md | Oracle Schema 基線。 |
+| NSAS-Schema-Rebuild.sql | 目前 Oracle Schema 權威來源。 |
+| NSAS-Schema-Baseline.md | 舊 Oracle Schema 快照。 |
 | Table-Catalog.md | 資料表總覽。 |
 | System-Architecture.md | 系統架構。 |
 | ADR | 架構決策紀錄。 |
@@ -117,6 +117,6 @@
 ## Notes
 
 - 本文件描述索引設計原則與需求，不代表資料庫已建立所有候選索引。
-- Oracle 實際索引應以 `NSAS-Schema-Baseline.md` 為準。
+- Oracle 實際索引應以 `NSAS-Schema-Rebuild.sql` 為準。
 - 新增、修改或移除索引時，應同步更新本文件。
 - 所有索引變更皆應經過效能驗證與執行計畫分析。

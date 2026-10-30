@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import com.nailsaas.domain.ApplyReservationBlockTimeRequest;
 import com.nailsaas.domain.GetReservationBlockTimeReponse;
 import com.nailsaas.domain.GetManicuristInfoRequest;
@@ -30,13 +32,13 @@ public class ReservationBlockTimeController {
     
     // 美甲師自己增設不可預約時間
     @PostMapping("/add")
-    public void addBlockTime(@RequestBody ApplyReservationBlockTimeRequest req) {
+    public void addBlockTime(@Valid @RequestBody ApplyReservationBlockTimeRequest req) {
         service.addBlockTime(req);
     }
     
     // 美甲師自己移除不可預約時間
     @DeleteMapping("/remove")
-    public void removeBlockTime(@RequestBody RemoveReservationBlockTimeRequest req) {
+    public void removeBlockTime(@Valid @RequestBody RemoveReservationBlockTimeRequest req) {
         service.removeBlockTime(req);
     }
 }

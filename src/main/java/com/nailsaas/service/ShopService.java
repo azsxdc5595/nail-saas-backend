@@ -1,4 +1,4 @@
-﻿
+
 package com.nailsaas.service;
 
 import java.time.LocalDateTime;
@@ -22,7 +22,6 @@ import com.nailsaas.enums.InviteCodeStatusEnum;
 import com.nailsaas.enums.ManicuristStatusEnum;
 import com.nailsaas.enums.RoleEnum;
 import com.nailsaas.exception.BusinessException;
-import com.nailsaas.repository.AddressRepository;
 import com.nailsaas.repository.ManicuristRepository;
 import com.nailsaas.repository.ShopInviteCodeRepository;
 import com.nailsaas.repository.ShopRepository;
@@ -110,7 +109,13 @@ public class ShopService {
     @Transactional
     public String invite() {
         UserAccount userAccount = getCurrentUser();
-        Shop shop = shopRepository.findByUserId(userAccount.getId())
+        Manicurist currentManicurist = manicuristRepository.findManicuristByUserCode(userAccount.getCode())
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.PERMISSION_DENIED));
+        if (!RoleEnum.OWNER.getCode().equals(currentManicurist.getRole())
+                && !RoleEnum.ADMIN.getCode().equals(currentManicurist.getRole())) {
+            throw new BusinessException(ErrorCodeEnum.PERMISSION_DENIED);
+        }
+        Shop shop = shopRepository.findById(currentManicurist.getShopId())
                 .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SHOP_NOT_FOUND));
 
         Optional<ShopInviteCode> activeInviteCode = shopInviteCodeRepository.findByShopIdAndStatus(

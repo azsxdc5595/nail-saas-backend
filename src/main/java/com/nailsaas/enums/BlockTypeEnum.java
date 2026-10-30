@@ -2,10 +2,10 @@ package com.nailsaas.enums;
 
 public enum BlockTypeEnum {
 
+    OFF("OFF", "休假"),
     REST("REST", "休息"),
-    TRAINING("TRAINING", "教育訓練"),
-    PERSONAL("PERSONAL", "私人行程"),
-    OTHER("OTHER", "其他");
+    BOOKED("BOOKED", "已預約"),
+    MAINTAIN("MAINTAIN", "維護");
 
     private final String code;
     private final String description;

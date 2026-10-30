@@ -5,16 +5,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.nailsaas.domain.BlacklistRequest;
 import com.nailsaas.entity.ManicuristBlacklist;
 import com.nailsaas.enums.ErrorCodeEnum;
 import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.BlacklistRepository;
+import com.nailsaas.repository.ManicuristRepository;
+import com.nailsaas.util.SecurityUtil;
 
 @Service
 public class BlacklistService {
@@ -22,9 +22,12 @@ public class BlacklistService {
     @Autowired
     private BlacklistRepository blacklistRepository;
 
+    @Autowired
+    private ManicuristRepository manicuristRepository;
+
     // 查詢
-    public List<ManicuristBlacklist> getBlacklistByManicuristId(BlacklistRequest req) {
-        return blacklistRepository.findByManicuristId(req.getManicuristId());
+    public List<ManicuristBlacklist> getBlacklistByCurrentManicurist() {
+        return blacklistRepository.findByManicuristId(getCurrentManicuristId());
     }
     
     // 增至黑名單
@@ -32,7 +35,8 @@ public class BlacklistService {
     public String addToBlacklist(BlacklistRequest req) {
 
         // 先檢查是否已存在
-        boolean exists = blacklistRepository.existsByManicuristIdAndUserId(req.getManicuristId(), req.getUserId());
+        Long manicuristId = getCurrentManicuristId();
+        boolean exists = blacklistRepository.existsByManicuristIdAndUserId(manicuristId, req.getUserId());
 
         if (exists) {
             throw new BusinessException(ErrorCodeEnum.BLACKLIST_ALREADY_EXISTS);
@@ -41,7 +45,7 @@ public class BlacklistService {
         // 建立 entity
         ManicuristBlacklist entity = new ManicuristBlacklist();
 
-        entity.setManicuristId(req.getManicuristId()); // 美甲師ID
+        entity.setManicuristId(manicuristId);
         entity.setUserId(req.getUserId());             // 被封鎖使用者ID
         entity.setReason(req.getReason());             // 原因
         entity.setCreateTime(LocalDateTime.now());     // 建立時間
@@ -55,7 +59,7 @@ public class BlacklistService {
     public String removeFromBlacklist(BlacklistRequest req) {
 
         int n = blacklistRepository.deleteByManicuristIdAndUserId(
-                req.getManicuristId(),
+                getCurrentManicuristId(),
                 req.getUserId()
         );
 
@@ -64,6 +68,14 @@ public class BlacklistService {
         }
 
         return "移除成功";
+    }
+
+    private Long getCurrentManicuristId() {
+        Long manicuristId = manicuristRepository.searchManicuristIdByUserCode(SecurityUtil.getCurrentUserCode());
+        if (manicuristId == null) {
+            throw new BusinessException(ErrorCodeEnum.PERMISSION_DENIED);
+        }
+        return manicuristId;
     }
 
 }

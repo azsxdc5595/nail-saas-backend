@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import com.nailsaas.domain.CreateShopRequest;
 import com.nailsaas.domain.GetShopInfoReponse;
 import com.nailsaas.domain.JoinShopRequest;
@@ -23,7 +25,7 @@ public class ShopController {
     
     // 以店長身份 -> 創建店家
     @PostMapping("/create")
-    public void create(@RequestBody CreateShopRequest req){
+    public void create(@Valid @RequestBody CreateShopRequest req){
         service.createShop(req);
     }
 
@@ -41,7 +43,7 @@ public class ShopController {
     
     // 以美甲師身份 -> 加入店家
     @PostMapping("/join")
-    public void joinShop(@RequestBody JoinShopRequest req) {
+    public void joinShop(@Valid @RequestBody JoinShopRequest req) {
         service.joinShop(req);
     }
 }

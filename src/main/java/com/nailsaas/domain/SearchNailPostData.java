@@ -1,37 +1,32 @@
 package com.nailsaas.domain;
 
 import java.math.BigDecimal;
-
 import lombok.Data;
 
 @Data
-public class GetNailSampleDetailResponse {
+public class SearchNailPostData {
 
-    /** 作品ID */
-    private Long sampleId;
+    /** 作品貼文ID */
+    private Long postId;
 
     /** 美甲師ID */
     private Long manicuristId;
 
-    /** 作品圖片 */
-    private String imageUrl;
-
     /** 價格 */
     private BigDecimal price;
 
-    /** 作品描述 */
+    /** 作品貼文描述 */
     private String description;
 
-    /** 作品風格代碼 */
+    /** 作品貼文風格 */
     private String styleCode;
 
-    /** 季節代碼 */
+    /** 季節 */
     private String seasonCode;
 
-    /** 主色系代碼 */
+    /** 主色系 */
     private String mainColorCode;
 
-    /** 是否可預約 */
-    private Boolean reservable;
+    private NailPostImageData coverImage;
 
 }

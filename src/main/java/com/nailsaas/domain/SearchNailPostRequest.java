@@ -9,18 +9,17 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class SearchNailSampleRequest extends CustomPage {
+public class SearchNailPostRequest extends CustomPage {
 
-    /** 美甲師代碼 */
-    private String manicuristCode;
+    private String userCode;
     
     /** 美甲師對外顯示名稱 */
     private String displayName;
     
-    /** 作品描述 */
+    /** 作品貼文描述 */
     private String description;
 
-    /** 作品風格代碼 */
+    /** 作品貼文風格代碼 */
     private String styleCode;
 
     /** 季節代碼 */
