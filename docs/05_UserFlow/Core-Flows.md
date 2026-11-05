@@ -36,9 +36,34 @@
 
 | Flow | Description | Status |
 |------|-------------|--------|
+| Public Discovery | 未登入訪客瀏覽公開作品貼文與啟用服務 | Review Required |
 | Member Reservation Journey | 會員完整預約流程 | Review Required |
 | Manicurist Portfolio Management | 美甲師作品貼文管理 | Review Required |
 | Shop Invitation | 店家邀請美甲師 | Review Required |
+
+---
+
+## Public Discovery
+
+### Goal
+
+讓未登入訪客先瀏覽平台公開內容；建立預約或使用個人／管理功能時再要求登入。
+
+### Flow
+
+```mermaid
+flowchart TD
+    A[未登入訪客] --> B[搜尋啟用作品貼文]
+    B --> C[查看啟用作品貼文明細]
+    A --> D[搜尋啟用服務項目]
+    C --> E[需要帳戶的操作]
+    D --> E
+    E --> F[登入或註冊]
+```
+
+### Current Status
+
+作品貼文搜尋／明細及服務搜尋可免登入。公開店家與美甲師資料的查詢端點尚未定義，需補 API 規格後再實作。
 
 ---
 

@@ -41,6 +41,8 @@ Roadmap 作為產品開發依據，提供團隊了解目前開發進度與後續
 
 # 4. Phase 1 - Core Foundation
 
+第一階段範圍大綱請參考 [Phase-1-Outline.md](Phase-1-Outline.md)。該文件目前為 Draft，待需求確認。
+
 ## Goal
 
 建立系統基礎架構，完成店家、美甲師與作品貼文管理。

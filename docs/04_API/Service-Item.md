@@ -18,7 +18,7 @@ Base path: `/serviceItem`
 
 ## Authorization
 
-JWT authentication required。修改及刪除須確認服務項目屬於目前登入美甲師。
+`POST /serviceItem/search` 為公開瀏覽端點，不要求 JWT，且只搜尋啟用的服務項目；訪客提供的 `userCode` 不會用來查詢停用服務。其他端點需 JWT；修改及刪除須確認服務項目屬於目前登入美甲師。
 
 ## PATCH Request / Validation
 
@@ -56,4 +56,5 @@ PATCH 成功時回傳空 body。錯誤回應使用共用 `ApiError` 格式。
 
 | Date | Change |
 | --- | --- |
+| 2026-11-05 | 開放服務搜尋免登入，公開搜尋只回傳啟用服務。 |
 | 2026-10-30 | 明確定義 PATCH 部分更新、所有權驗證及穩定服務代碼。 |

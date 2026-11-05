@@ -2,6 +2,7 @@ package com.nailsaas.config;
 
 import java.util.List;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -50,6 +51,8 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/error"
                 ).permitAll()
+                // Public discovery endpoints; write operations remain authenticated.
+                .requestMatchers(HttpMethod.POST, "/nailPost/search", "/nailPost/detail", "/serviceItem/search").permitAll()
                 .anyRequest().authenticated()
             )
 

@@ -77,6 +77,8 @@ public class ServiceItemService {
 
     // 查詢某一位美甲師的服務項目
     public SearchServiceItemResponse searchServiceItem(SearchServiceItemRequest req) {
+        // Public search must not use a caller-supplied userCode to expose inactive items.
+        req.setUserCode(null);
         return executeServiceItemSearch(req);
     }
 

@@ -19,7 +19,7 @@ Controller base path: `/nailPost`
 
 ## Authorization
 
-所有端點目前均受 JWT authentication 保護。建立貼文要求目前使用者可查得美甲師資料；修改及刪除會比對貼文所屬美甲師。搜尋及明細僅回傳啟用貼文。
+`POST /nailPost/search` 與 `POST /nailPost/detail` 為公開瀏覽端點，不要求 JWT，且只回傳啟用貼文。其餘端點需 JWT。建立貼文要求目前使用者可查得美甲師資料；修改及刪除會比對貼文所屬美甲師。
 
 ## Request
 
@@ -74,4 +74,5 @@ Controller base path: `/nailPost`
 
 | Date | Change |
 | --- | --- |
+| 2026-11-05 | 開放作品搜尋與明細免登入；僅公開啟用貼文。 |
 | 2026-10-30 | 對齊多圖貼文 schema，新增圖片 metadata request/response、排序、封面及圖片清單更新語意。 |
