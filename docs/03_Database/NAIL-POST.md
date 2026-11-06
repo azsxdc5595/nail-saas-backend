@@ -49,7 +49,7 @@
 
 ## API 關聯
 
-見 [Portfolio API](../04_API/Portfolio.md)。資料庫只保存 metadata；二進位檔案的上傳、讀取與刪除服務尚未由目前架構決策定義。
+見 [Portfolio API](../04_API/Portfolio.md)。資料庫保存後端解析的 metadata；圖片檔案位置及生命週期依 [ADR-0003](../07_ADR/ADR-0003-portfolio-image-local-storage.md) 儲存於本機檔案系統。
 
 ## Change History
 

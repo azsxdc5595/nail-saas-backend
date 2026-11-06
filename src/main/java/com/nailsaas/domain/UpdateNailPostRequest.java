@@ -39,4 +39,6 @@ public class UpdateNailPostRequest {
     @Valid
     private List<NailPostImageRequest> images;
 
+    private Boolean clearImages;
+
 }

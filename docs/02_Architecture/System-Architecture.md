@@ -67,6 +67,7 @@ API --> Mail[SMTP Mail]
 | Security | Spring Security、JWT |
 | Persistence | Spring Data JPA、Hibernate (`ddl-auto: none`) |
 | Database | Oracle (`NSAS Schema`) |
+| Portfolio Image Storage | 本機檔案系統，根目錄 `D:\\Nail\\postImage`（依 ADR-0003） |
 | Mail | Spring Mail |
 
 ---
@@ -104,7 +105,6 @@ API --> Mail[SMTP Mail]
 - Redis
 - Message Queue
 - WebSocket
-- Object Storage
 - Firebase
 - API Versioning Strategy
 - Deployment Architecture
@@ -124,7 +124,7 @@ API --> Mail[SMTP Mail]
 
 - Redis Cache
 - Message Queue
-- Object Storage
+- Object Storage（未來可評估遷移）
 - Push Notification
 - Horizontal Scaling
 - API Gateway

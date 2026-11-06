@@ -114,9 +114,9 @@ flowchart TD
 ```mermaid
 flowchart TD
     A[已登入美甲師]
-    B[送出新增作品貼文與圖片 metadata]
+    B[送出作品貼文欄位與多張圖片檔案]
     C[建立 NAIL_POST]
-    C --> C2[建立多筆 NAIL_POST_IMAGE]
+    C --> C2[儲存圖片檔案並解析 metadata，建立多筆 NAIL_POST_IMAGE]
     D[作品貼文及排序圖片可由查詢 API 取得]
 
     A --> B
@@ -127,11 +127,9 @@ flowchart TD
 
 ### Current Status
 
-目前僅完成作品貼文資料建立流程。
+新增及修改貼文使用 multipart 上傳圖片；檔案儲存位置由本機檔案系統決策定義。搜尋及明細回傳圖片 metadata。
 
 以下功能尚未完成設計：
-
-- 圖片上傳
 - 發布狀態管理
 - Tag 管理
 - 權限驗證

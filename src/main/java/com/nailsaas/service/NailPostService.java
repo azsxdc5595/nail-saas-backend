@@ -9,10 +9,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.nailsaas.domain.ApplyNailPostRequest;
 import com.nailsaas.domain.GetNailPostDetailRequest;
@@ -24,6 +27,7 @@ import com.nailsaas.domain.SearchNailPostData;
 import com.nailsaas.domain.SearchNailPostRequest;
 import com.nailsaas.domain.SearchNailPostResponse;
 import com.nailsaas.domain.UpdateNailPostRequest;
+import com.nailsaas.entity.Manicurist;
 import com.nailsaas.entity.NailPost;
 import com.nailsaas.entity.NailPostImage;
 import com.nailsaas.enums.ErrorCodeEnum;
@@ -36,17 +40,14 @@ import com.nailsaas.util.SecurityUtil;
 @Service
 public class NailPostService {
 
-    private final NailPostRepository nailPostRepository;
-    private final ManicuristRepository manicuristRepository;
-    private final NailPostImageRepository nailPostImageRepository;
-
-    public NailPostService(NailPostRepository nailPostRepository,
-            ManicuristRepository manicuristRepository,
-            NailPostImageRepository nailPostImageRepository) {
-        this.nailPostRepository = nailPostRepository;
-        this.manicuristRepository = manicuristRepository;
-        this.nailPostImageRepository = nailPostImageRepository;
-    }
+    @Autowired
+    private NailPostRepository nailPostRepository;
+    @Autowired
+    private ManicuristRepository manicuristRepository;
+    @Autowired
+    private NailPostImageRepository nailPostImageRepository;
+    @Autowired
+    private NailPostImageStorageService imageStorageService;
 
     // 美甲師查看自己的作品貼文
     @Transactional(readOnly = true)
@@ -58,12 +59,10 @@ public class NailPostService {
     // 美甲師新增自己的作品貼文
     @Transactional
     public void addNailPost(ApplyNailPostRequest req) {
-        Long manicuristId = manicuristRepository.searchManicuristIdByUserCode(SecurityUtil.getCurrentUserCode());
-        if (manicuristId == null) {
-            throw new BusinessException(ErrorCodeEnum.PERMISSION_DENIED);
-        }
+        var manicurist = manicuristRepository.findManicuristByUserCode(SecurityUtil.getCurrentUserCode())
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.PERMISSION_DENIED));
         NailPost nailPost = new NailPost();
-        nailPost.setManicuristId(manicuristId);
+        nailPost.setManicuristId(manicurist.getId());
         nailPost.setPrice(req.getPrice());
         nailPost.setDescription(req.getDescription());
         nailPost.setStyleCode(req.getStyleCode());
@@ -72,14 +71,17 @@ public class NailPostService {
         nailPost.setEnabled(req.getEnabled() == null ? 1 : req.getEnabled());
         nailPost.setCreateTime(LocalDateTime.now());
         nailPost = nailPostRepository.save(nailPost);
-        saveImages(nailPost.getId(), req.getImages());
+        saveImages(nailPost.getId(), req.getImages(), manicurist.getCode());
     }
 
     // 美甲師移除自己的作品貼文
     @Transactional
     public void removeNailPost(RemoveNailPostRequest req) {
         NailPost nailPost = findOwnedPost(req.getPostId());
+        List<String> imagePaths = nailPostImageRepository.findAllByPostIdOrderBySortOrderAscIdAsc(nailPost.getId())
+                .stream().map(NailPostImage::getStoragePath).toList();
         nailPostRepository.delete(nailPost);
+        registerAfterCommitCleanup(imagePaths);
     }
 
     // 查詢某一位美甲師的作品貼文
@@ -163,7 +165,8 @@ public class NailPostService {
 
     @Transactional
     public void updateNailPost(UpdateNailPostRequest req) {
-        NailPost nailPost = findOwnedPost(req.getPostId());
+        var manicurist = findCurrentManicurist();
+        NailPost nailPost = findOwnedPost(req.getPostId(), manicurist);
         if (req.getPrice() != null) {
             nailPost.setPrice(req.getPrice());
         }
@@ -184,23 +187,39 @@ public class NailPostService {
         }
         nailPost.setUpdateTime(LocalDateTime.now());
         nailPostRepository.save(nailPost);
-        if (req.getImages() != null) {
+        if (Boolean.TRUE.equals(req.getClearImages()) && req.getImages() != null) {
+            throw new BusinessException(ErrorCodeEnum.REQUEST_INVALID);
+        }
+        if (req.getImages() != null || Boolean.TRUE.equals(req.getClearImages())) {
+            List<String> oldImagePaths = nailPostImageRepository.findAllByPostIdOrderBySortOrderAscIdAsc(nailPost.getId())
+                    .stream().map(NailPostImage::getStoragePath).toList();
             nailPostImageRepository.deleteAllByPostId(nailPost.getId());
-            saveImages(nailPost.getId(), req.getImages());
+            if (!Boolean.TRUE.equals(req.getClearImages())) {
+                saveImages(nailPost.getId(), req.getImages(), manicurist.getCode());
+            }
+            registerAfterCommitCleanup(oldImagePaths);
         }
     }
 
     private NailPost findOwnedPost(Long postId) {
+        return findOwnedPost(postId, findCurrentManicurist());
+    }
+
+    private NailPost findOwnedPost(Long postId, Manicurist manicurist) {
         NailPost nailPost = nailPostRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCodeEnum.NAIL_POST_NOT_FOUND));
-        Long manicuristId = manicuristRepository.searchManicuristIdByUserCode(SecurityUtil.getCurrentUserCode());
-        if (manicuristId == null || !Objects.equals(manicuristId, nailPost.getManicuristId())) {
+        if (!Objects.equals(manicurist.getId(), nailPost.getManicuristId())) {
             throw new BusinessException(ErrorCodeEnum.PERMISSION_DENIED);
         }
         return nailPost;
     }
 
-    private void saveImages(Long postId, List<NailPostImageRequest> requests) {
+    private Manicurist findCurrentManicurist() {
+        return manicuristRepository.findManicuristByUserCode(SecurityUtil.getCurrentUserCode())
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.PERMISSION_DENIED));
+    }
+
+    private void saveImages(Long postId, List<NailPostImageRequest> requests, String manicuristCode) {
         if (requests == null || requests.isEmpty()) {
             return;
         }
@@ -208,13 +227,20 @@ public class NailPostService {
         List<NailPostImage> images = new ArrayList<>();
         for (int index = 0; index < requests.size(); index++) {
             NailPostImageRequest request = requests.get(index);
+            NailPostImageStorageService.StoredImage stored = imageStorageService.store(request.getFile(), manicuristCode);
+            registerRollbackCleanup(stored);
             NailPostImage image = new NailPostImage();
             image.setPostId(postId);
-            image.setStorageName(request.getStorageName());
-            image.setStoragePath(request.getStoragePath());
-            image.setOriginalName(request.getOriginalName());
-            image.setContentType(request.getContentType());
-            image.setFileSize(request.getFileSize());
+            image.setStorageName(stored.storageName());
+            image.setStoragePath(stored.storagePath());
+            String originalName = request.getOriginalName() == null ? stored.originalName() : request.getOriginalName();
+            if (originalName != null && originalName.length() > 255) {
+                imageStorageService.delete(stored);
+                throw new BusinessException(ErrorCodeEnum.REQUEST_INVALID);
+            }
+            image.setOriginalName(originalName);
+            image.setContentType(stored.contentType());
+            image.setFileSize(stored.fileSize());
             image.setSortOrder(request.getSortOrder() == null ? index + 1 : request.getSortOrder());
             image.setIsCover(request.getIsCover() == null ? 0 : request.getIsCover());
             image.setCreateTime(now);
@@ -222,6 +248,32 @@ public class NailPostService {
             images.add(image);
         }
         nailPostImageRepository.saveAll(images);
+    }
+
+    private void registerRollbackCleanup(NailPostImageStorageService.StoredImage stored) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                if (status != STATUS_COMMITTED) {
+                    imageStorageService.delete(stored);
+                }
+            }
+        });
+    }
+
+    private void registerAfterCommitCleanup(List<String> storagePaths) {
+        if (storagePaths.isEmpty() || !TransactionSynchronizationManager.isSynchronizationActive()) {
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                storagePaths.forEach(imageStorageService::deleteStoredPath);
+            }
+        });
     }
 
     private Map<Long, List<NailPostImage>> loadImages(List<NailPost> posts) {

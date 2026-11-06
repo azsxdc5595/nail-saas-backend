@@ -2,11 +2,13 @@ package com.nailsaas.controller;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
 
 import jakarta.validation.Valid;
 
@@ -36,14 +38,14 @@ public class NailPostController {
     }
 
     // 美甲師新增自己的作品貼文
-    @PostMapping("/add")
-    public void addNailPost(@Valid @RequestBody ApplyNailPostRequest req) {
+    @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void addNailPost(@Valid @ModelAttribute ApplyNailPostRequest req) {
         service.addNailPost(req);
     }
 
     // 美甲師調整自己的作品貼文
-    @PatchMapping("/edit")
-    public void updateNailPost(@Valid @RequestBody UpdateNailPostRequest req) {
+    @PatchMapping(value = "/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void updateNailPost(@Valid @ModelAttribute UpdateNailPostRequest req) {
         service.updateNailPost(req);
     }
 
