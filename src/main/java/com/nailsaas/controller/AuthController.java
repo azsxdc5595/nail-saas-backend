@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -46,29 +45,32 @@ import jakarta.validation.Valid;
 @Transactional(noRollbackFor = ResponseStatusException.class)
 public class AuthController {
 
-    @Autowired
-    private UserAccountService userAccountService;
+    private final UserAccountService userAccountService;
 
-    @Autowired
-    private UserAccountRepository userAccountRepository;
+    private final UserAccountRepository userAccountRepository;
     
-    @Autowired
-    private EmailVerificationRepository emailVerificationRepository;
+    private final EmailVerificationRepository emailVerificationRepository;
     
-    @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
     
-    @Autowired
-    private Generate generate;
+    private final Generate generate;
     
-    @Autowired
-    private MailService mailService;
+    private final MailService mailService;
+
+    AuthController(UserAccountService userAccountService, UserAccountRepository userAccountRepository, EmailVerificationRepository emailVerificationRepository, PasswordEncoder passwordEncoder, Generate generate, MailService mailService, JwtUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
+        this.userAccountService = userAccountService;
+        this.userAccountRepository = userAccountRepository;
+        this.emailVerificationRepository = emailVerificationRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.generate = generate;
+        this.mailService = mailService;
+        this.jwtUtil = jwtUtil;
+        this.refreshTokenRepository = refreshTokenRepository;
+    }
 
     @PostMapping("/register")
     @Transactional

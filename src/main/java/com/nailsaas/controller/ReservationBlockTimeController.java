@@ -1,7 +1,6 @@
 
 package com.nailsaas.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,21 +8,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-
 import com.nailsaas.domain.ApplyReservationBlockTimeRequest;
-import com.nailsaas.domain.GetReservationBlockTimeReponse;
 import com.nailsaas.domain.GetManicuristInfoRequest;
+import com.nailsaas.domain.GetReservationBlockTimeReponse;
 import com.nailsaas.domain.RemoveReservationBlockTimeRequest;
 import com.nailsaas.service.ReservationBlockTimeService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/reservationBlockTime")
 public class ReservationBlockTimeController {
 
 
-    @Autowired
-    private ReservationBlockTimeService service;
+    private final ReservationBlockTimeService service;
+
+    ReservationBlockTimeController(ReservationBlockTimeService service) {
+        this.service = service;
+    }
 
     @GetMapping("/getBlockTime")
     public GetReservationBlockTimeReponse getBlockTime(@RequestBody GetManicuristInfoRequest req) {

@@ -4,9 +4,7 @@ package com.nailsaas.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,6 @@ import com.nailsaas.domain.UpdateServiceItemRequest;
 import com.nailsaas.entity.ServiceItem;
 import com.nailsaas.enums.ErrorCodeEnum;
 import com.nailsaas.exception.BusinessException;
-import com.nailsaas.repository.ManicuristRepository;
 import com.nailsaas.repository.ServiceItemRepository;
 import com.nailsaas.util.Generate;
 import com.nailsaas.util.SecurityUtil;
@@ -29,14 +26,17 @@ import com.nailsaas.util.SecurityUtil;
 @Service
 public class ServiceItemService {
 
-    @Autowired
-    private ServiceItemRepository serviceItemRepository;
+    private final ServiceItemRepository serviceItemRepository;
 
-    @Autowired
-    private ManicuristRepository manicuristRepository;
-    
-    @Autowired
-    private Generate generate;
+    private final Generate generate;
+
+    private final PermissionCheckService permissionCheckService;
+
+    ServiceItemService(ServiceItemRepository serviceItemRepository, Generate generate, PermissionCheckService permissionCheckService) {
+        this.serviceItemRepository = serviceItemRepository;
+        this.generate = generate;
+        this.permissionCheckService = permissionCheckService;
+    }
 
     // 美甲師查詢自己的服務項目
     public SearchServiceItemResponse searchMyServiceItem(SearchServiceItemRequest req) {
@@ -47,10 +47,7 @@ public class ServiceItemService {
     // 美甲師新增自己的服務項目
     @Transactional
     public void save(ApplyServiceItemRequest req){
-        Long manicuristId = manicuristRepository.searchManicuristIdByUserCode(SecurityUtil.getCurrentUserCode());
-        if (manicuristId == null) {
-            throw new BusinessException(ErrorCodeEnum.PERMISSION_DENIED);
-        }
+        Long manicuristId = permissionCheckService.getCurrentManicuristId();
         ServiceItem serviceItem = new ServiceItem();
         serviceItem.setCode(generate.generateUuid());
         serviceItem.setManicuristId(manicuristId);
@@ -68,10 +65,7 @@ public class ServiceItemService {
     public void remove(RemoveServiceNameRequest req){
         ServiceItem serviceItem = serviceItemRepository.findById(req.getServiceId())
                 .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SERVICE_ITEM_NOT_FOUND));
-        Long manicuristId = manicuristRepository.searchManicuristIdByUserCode(SecurityUtil.getCurrentUserCode());
-        if (manicuristId == null || !Objects.equals(serviceItem.getManicuristId(), manicuristId)) {
-            throw new BusinessException(ErrorCodeEnum.PERMISSION_DENIED);
-        }
+        permissionCheckService.checkCurrentManicuristOwnership(serviceItem.getManicuristId());
         serviceItemRepository.delete(serviceItem);
     }
 
@@ -126,10 +120,7 @@ public class ServiceItemService {
     public void updateServiceItem(UpdateServiceItemRequest req) {
         ServiceItem serviceItem = serviceItemRepository.findById(req.getServiceId())
                 .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SERVICE_ITEM_NOT_FOUND));
-        Long manicuristId = manicuristRepository.searchManicuristIdByUserCode(SecurityUtil.getCurrentUserCode());
-        if (manicuristId == null || !Objects.equals(serviceItem.getManicuristId(), manicuristId)) {
-            throw new BusinessException(ErrorCodeEnum.PERMISSION_DENIED);
-        }
+        permissionCheckService.checkCurrentManicuristOwnership(serviceItem.getManicuristId());
         if (req.getServiceName() != null) {
             serviceItem.setServiceName(req.getServiceName());
         }

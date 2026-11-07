@@ -1,27 +1,29 @@
 
 package com.nailsaas.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-
 import com.nailsaas.domain.CreateShopRequest;
 import com.nailsaas.domain.GetShopInfoReponse;
 import com.nailsaas.domain.JoinShopRequest;
 import com.nailsaas.service.ShopService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/shop")
 public class ShopController {
 
 
-    @Autowired
-    private ShopService service;
+    private final ShopService service;
+
+    ShopController(ShopService service) {
+        this.service = service;
+    }
     
     // 以店長身份 -> 創建店家
     @PostMapping("/create")

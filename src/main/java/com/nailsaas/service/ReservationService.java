@@ -1,7 +1,6 @@
 
 package com.nailsaas.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nailsaas.repository.ManicuristRepository;
@@ -10,11 +9,14 @@ import com.nailsaas.repository.NailPostRepository;
 @Service
 public class ReservationService {
     
-    @Autowired
-    private ManicuristRepository manicuristRepository;
+    private final ManicuristRepository manicuristRepository;
     
-    @Autowired
-    private NailPostRepository NailPostRepository;
+    private final NailPostRepository NailPostRepository;
+
+    ReservationService(ManicuristRepository manicuristRepository, NailPostRepository NailPostRepository) {
+        this.manicuristRepository = manicuristRepository;
+        this.NailPostRepository = NailPostRepository;
+    }
 
    
 }

@@ -1,14 +1,11 @@
 package com.nailsaas.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.validation.Valid;
 
 import com.nailsaas.domain.ConfirmUpdateEmailRequest;
 import com.nailsaas.domain.GetUserInfoReponse;
@@ -17,12 +14,17 @@ import com.nailsaas.domain.UpdatePasswordRequest;
 import com.nailsaas.domain.UpdateUserRequest;
 import com.nailsaas.service.UserAccountService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/user")
 public class UserAccountController {
 
-    @Autowired
-    private UserAccountService service;
+    private final UserAccountService service;
+
+    UserAccountController(UserAccountService service) {
+        this.service = service;
+    }
 
     @GetMapping("/me")
     public GetUserInfoReponse getMe() {

@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nailsaas.domain.ConfirmUpdateEmailRequest;
 import com.nailsaas.domain.ForgotPasswordRequest;
 import com.nailsaas.domain.GetUserInfoReponse;
-import com.nailsaas.domain.ResetPasswordRequest;
 import com.nailsaas.domain.RegisterRequest;
+import com.nailsaas.domain.ResetPasswordRequest;
 import com.nailsaas.domain.UpdateEmailRequest;
 import com.nailsaas.domain.UpdatePasswordRequest;
 import com.nailsaas.domain.UpdateUserRequest;
@@ -30,20 +29,26 @@ import com.nailsaas.util.SecurityUtil;
 @Service
 public class UserAccountService {
 
-    @Autowired
-    private UserAccountRepository userAccountRepository;
+    private final UserAccountRepository userAccountRepository;
     
-    @Autowired
-    private EmailVerificationRepository emailVerificationRepository;
+    private final EmailVerificationRepository emailVerificationRepository;
     
-    @Autowired
-    private Generate generate;
+    private final Generate generate;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     
-    @Autowired
-    private MailService mailService;
+    private final MailService mailService;
+
+    private final PermissionCheckService permissionCheckService;
+
+    UserAccountService(UserAccountRepository userAccountRepository, EmailVerificationRepository emailVerificationRepository, Generate generate, PasswordEncoder passwordEncoder, MailService mailService, PermissionCheckService permissionCheckService) {
+        this.userAccountRepository = userAccountRepository;
+        this.emailVerificationRepository = emailVerificationRepository;
+        this.generate = generate;
+        this.passwordEncoder = passwordEncoder;
+        this.mailService = mailService;
+        this.permissionCheckService = permissionCheckService;
+    }
 
     // 後臺查詢所有帳號 
     public List<UserAccount> findAll() {
@@ -77,27 +82,20 @@ public class UserAccountService {
 
     // 查詢
     public GetUserInfoReponse getCurrentUser() {
-        Optional<UserAccount> optionalUserAccount = Optional.ofNullable(userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND)));
-        UserAccount userAccount = optionalUserAccount.get();
+        UserAccount userAccount = permissionCheckService.getCurrentUser();
         GetUserInfoReponse reponse = GetUserInfoReponse.builder().userName(userAccount.getUserName()).email(userAccount.getEmail()).phone(userAccount.getPhone()).build();
         return reponse;
     }
 
     // 註銷
     public void cancelAccount() {
-        UserAccount user = userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
-
-        userAccountRepository.delete(user);
+        userAccountRepository.delete(permissionCheckService.getCurrentUser());
     }
 
     @Transactional
     public void updateMe(UpdateUserRequest req) {
 
-        UserAccount user = userAccountRepository
-                .findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
+        UserAccount user = permissionCheckService.getCurrentUser();
 
         // 只更新有傳的欄位
         if (req.getUserName() != null) {
@@ -116,8 +114,7 @@ public class UserAccountService {
     @Transactional
     public void updatePassword(UpdatePasswordRequest req) {
 
-        UserAccount user = userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
+        UserAccount user = permissionCheckService.getCurrentUser();
 
         // 驗證舊密碼
         if (!passwordEncoder.matches(req.getOldPassword(), user.getPassword())) {
@@ -138,10 +135,8 @@ public class UserAccountService {
     
     public void requestEmailChange(UpdateEmailRequest req) {
         
-        String code = SecurityUtil.getCurrentUserCode();
-        
-        UserAccount user = userAccountRepository.findByCode(code)
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
+        UserAccount user = permissionCheckService.getCurrentUser();
+        String code = user.getCode();
 
         // 防重發（60秒內）
         Optional<EmailVerification> latest = emailVerificationRepository.findTopByUserCodeAndEmailOrderByCreateTimeDesc(code, req.getEmail());

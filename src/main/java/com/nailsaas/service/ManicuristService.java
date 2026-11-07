@@ -4,7 +4,6 @@ package com.nailsaas.service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,18 +14,22 @@ import com.nailsaas.entity.Manicurist;
 import com.nailsaas.enums.ErrorCodeEnum;
 import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.ManicuristRepository;
-import com.nailsaas.util.SecurityUtil;
 
 @Service
 public class ManicuristService {
 
-    @Autowired
-    private ManicuristRepository manicuristRepository;
+    private final ManicuristRepository manicuristRepository;
+
+    private final PermissionCheckService permissionCheckService;
+
+    ManicuristService(ManicuristRepository manicuristRepository, PermissionCheckService permissionCheckService) {
+        this.manicuristRepository = manicuristRepository;
+        this.permissionCheckService = permissionCheckService;
+    }
     
     @Transactional
     public void updateMe(UpdateManicuristRequest req) {
-        Manicurist manicurist = manicuristRepository.findManicuristByUserCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.MANICURIST_NOT_FOUND));
+        Manicurist manicurist = permissionCheckService.getCurrentManicurist(ErrorCodeEnum.MANICURIST_NOT_FOUND);
 
         // 只更新有傳的欄位
         if (req.getDisplayName() != null) {

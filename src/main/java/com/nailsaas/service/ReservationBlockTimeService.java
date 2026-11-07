@@ -3,10 +3,8 @@ package com.nailsaas.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,16 +18,21 @@ import com.nailsaas.enums.ErrorCodeEnum;
 import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.ManicuristRepository;
 import com.nailsaas.repository.ReservationBlockTimeRepository;
-import com.nailsaas.util.SecurityUtil;
 
 @Service
 public class ReservationBlockTimeService {
     
-    @Autowired
-    private ManicuristRepository manicuristRepository;
+    private final ManicuristRepository manicuristRepository;
     
-    @Autowired
-    private ReservationBlockTimeRepository reservationBlockTimeRepository;
+    private final ReservationBlockTimeRepository reservationBlockTimeRepository;
+
+    private final PermissionCheckService permissionCheckService;
+
+    ReservationBlockTimeService(PermissionCheckService permissionCheckService, ReservationBlockTimeRepository reservationBlockTimeRepository, ManicuristRepository manicuristRepository) {
+        this.permissionCheckService = permissionCheckService;
+        this.reservationBlockTimeRepository = reservationBlockTimeRepository;
+        this.manicuristRepository = manicuristRepository;
+    }
 
     // 查詢美甲師的不可預約時間
     public GetReservationBlockTimeReponse getBlockTime(GetManicuristInfoRequest req) {
@@ -44,7 +47,7 @@ public class ReservationBlockTimeService {
     // 新增不可預約時間
     @Transactional
     public void addBlockTime(ApplyReservationBlockTimeRequest req) {
-        Long manicuristId = getCurrentManicuristId();
+        Long manicuristId = permissionCheckService.getCurrentManicuristId();
         ReservationBlockTime blockTime = new ReservationBlockTime();
         blockTime.setManicuristId(manicuristId);
         blockTime.setStartTime(req.getStartTime());
@@ -60,18 +63,7 @@ public class ReservationBlockTimeService {
     public void removeBlockTime(RemoveReservationBlockTimeRequest req) {
         ReservationBlockTime blockTime = reservationBlockTimeRepository.findById(req.getBlockId())
                 .orElseThrow(() -> new BusinessException(ErrorCodeEnum.RESERVATION_BLOCK_NOT_FOUND));
-        Long manicuristId = getCurrentManicuristId();
-        if (!Objects.equals(blockTime.getManicuristId(), manicuristId)) {
-            throw new BusinessException(ErrorCodeEnum.PERMISSION_DENIED);
-        }
+        permissionCheckService.checkCurrentManicuristOwnership(blockTime.getManicuristId());
         reservationBlockTimeRepository.delete(blockTime);
-    }
-
-    private Long getCurrentManicuristId() {
-        Long manicuristId = manicuristRepository.searchManicuristIdByUserCode(SecurityUtil.getCurrentUserCode());
-        if (manicuristId == null) {
-            throw new BusinessException(ErrorCodeEnum.PERMISSION_DENIED);
-        }
-        return manicuristId;
     }
 }

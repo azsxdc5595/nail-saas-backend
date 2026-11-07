@@ -6,10 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,7 +30,6 @@ import com.nailsaas.entity.NailPost;
 import com.nailsaas.entity.NailPostImage;
 import com.nailsaas.enums.ErrorCodeEnum;
 import com.nailsaas.exception.BusinessException;
-import com.nailsaas.repository.ManicuristRepository;
 import com.nailsaas.repository.NailPostImageRepository;
 import com.nailsaas.repository.NailPostRepository;
 import com.nailsaas.util.SecurityUtil;
@@ -40,14 +37,17 @@ import com.nailsaas.util.SecurityUtil;
 @Service
 public class NailPostService {
 
-    @Autowired
-    private NailPostRepository nailPostRepository;
-    @Autowired
-    private ManicuristRepository manicuristRepository;
-    @Autowired
-    private NailPostImageRepository nailPostImageRepository;
-    @Autowired
-    private NailPostImageStorageService imageStorageService;
+    private final NailPostRepository nailPostRepository;
+    private final NailPostImageRepository nailPostImageRepository;
+    private final NailPostImageStorageService imageStorageService;
+    private final PermissionCheckService permissionCheckService;
+
+    NailPostService(NailPostRepository nailPostRepository, NailPostImageStorageService imageStorageService, PermissionCheckService permissionCheckService, NailPostImageRepository nailPostImageRepository) {
+        this.nailPostRepository = nailPostRepository;
+        this.imageStorageService = imageStorageService;
+        this.permissionCheckService = permissionCheckService;
+        this.nailPostImageRepository = nailPostImageRepository;
+    }
 
     // 美甲師查看自己的作品貼文
     @Transactional(readOnly = true)
@@ -59,8 +59,7 @@ public class NailPostService {
     // 美甲師新增自己的作品貼文
     @Transactional
     public void addNailPost(ApplyNailPostRequest req) {
-        var manicurist = manicuristRepository.findManicuristByUserCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.PERMISSION_DENIED));
+        var manicurist = permissionCheckService.getCurrentManicurist();
         NailPost nailPost = new NailPost();
         nailPost.setManicuristId(manicurist.getId());
         nailPost.setPrice(req.getPrice());
@@ -165,7 +164,7 @@ public class NailPostService {
 
     @Transactional
     public void updateNailPost(UpdateNailPostRequest req) {
-        var manicurist = findCurrentManicurist();
+        var manicurist = permissionCheckService.getCurrentManicurist();
         NailPost nailPost = findOwnedPost(req.getPostId(), manicurist);
         if (req.getPrice() != null) {
             nailPost.setPrice(req.getPrice());
@@ -202,21 +201,14 @@ public class NailPostService {
     }
 
     private NailPost findOwnedPost(Long postId) {
-        return findOwnedPost(postId, findCurrentManicurist());
+        return findOwnedPost(postId, permissionCheckService.getCurrentManicurist());
     }
 
     private NailPost findOwnedPost(Long postId, Manicurist manicurist) {
         NailPost nailPost = nailPostRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCodeEnum.NAIL_POST_NOT_FOUND));
-        if (!Objects.equals(manicurist.getId(), nailPost.getManicuristId())) {
-            throw new BusinessException(ErrorCodeEnum.PERMISSION_DENIED);
-        }
+        permissionCheckService.checkManicuristOwnership(manicurist.getId(), nailPost.getManicuristId());
         return nailPost;
-    }
-
-    private Manicurist findCurrentManicurist() {
-        return manicuristRepository.findManicuristByUserCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.PERMISSION_DENIED));
     }
 
     private void saveImages(Long postId, List<NailPostImageRequest> requests, String manicuristCode) {

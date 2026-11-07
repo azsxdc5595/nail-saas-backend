@@ -4,7 +4,6 @@ package com.nailsaas.service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,37 +24,38 @@ import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.ManicuristRepository;
 import com.nailsaas.repository.ShopInviteCodeRepository;
 import com.nailsaas.repository.ShopRepository;
-import com.nailsaas.repository.UserAccountRepository;
 import com.nailsaas.util.Generate;
-import com.nailsaas.util.SecurityUtil;
 
 @Service
 public class ShopService {
 
-    @Autowired
-    private UserAccountRepository userAccountRepository;
+    private final ShopInviteCodeRepository shopInviteCodeRepository;
     
-    @Autowired
-    private ShopInviteCodeRepository shopInviteCodeRepository;
+    private final ManicuristRepository manicuristRepository;
     
-    @Autowired
-    private ManicuristRepository manicuristRepository;
+    private final ShopRepository shopRepository;
     
-    @Autowired
-    private ShopRepository shopRepository;
+    private final AddressService addressService;
     
-    @Autowired
-    private AddressService addressService;
-    
-    @Autowired
-    private Generate generate;
+    private final Generate generate;
+
+    private final PermissionCheckService permissionCheckService;
+
+    ShopService(ShopInviteCodeRepository shopInviteCodeRepository, ShopRepository shopRepository,
+            ManicuristRepository manicuristRepository, AddressService addressService, Generate generate,
+            PermissionCheckService permissionCheckService) {
+        this.shopInviteCodeRepository = shopInviteCodeRepository;
+        this.shopRepository = shopRepository;
+        this.manicuristRepository = manicuristRepository;
+        this.addressService = addressService;
+        this.generate = generate;
+        this.permissionCheckService = permissionCheckService;
+    }
 
     // 新增店家
     @Transactional
     public void createShop(CreateShopRequest req) {
-        UserAccount userAccount = userAccountRepository
-                .findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new RuntimeException("使用者不存在"));
+        UserAccount userAccount = permissionCheckService.getCurrentUser();
         
         Optional<Shop> optionalShop = shopRepository.findByShopName(req.getShopName());
 
@@ -91,8 +91,7 @@ public class ShopService {
 
     // 查詢
     public UserAccount getCurrentUser() {
-        return userAccountRepository.findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.USER_NOT_FOUND));
+        return permissionCheckService.getCurrentUser();
     }
 
     // 查詢
@@ -108,9 +107,7 @@ public class ShopService {
     // 新增一組邀請碼
     @Transactional
     public String invite() {
-        UserAccount userAccount = getCurrentUser();
-        Manicurist currentManicurist = manicuristRepository.findManicuristByUserCode(userAccount.getCode())
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.PERMISSION_DENIED));
+        Manicurist currentManicurist = permissionCheckService.getCurrentManicurist();
         if (!RoleEnum.OWNER.getCode().equals(currentManicurist.getRole())
                 && !RoleEnum.ADMIN.getCode().equals(currentManicurist.getRole())) {
             throw new BusinessException(ErrorCodeEnum.PERMISSION_DENIED);
@@ -152,9 +149,7 @@ public class ShopService {
     @Transactional
     public void joinShop(JoinShopRequest req) {
 
-        UserAccount userAccount = userAccountRepository
-                .findByCode(SecurityUtil.getCurrentUserCode())
-                .orElseThrow(() -> new RuntimeException("使用者不存在"));
+        UserAccount userAccount = permissionCheckService.getCurrentUser();
 
         // UX 提示：一個使用者只能加入一間店家
         if (manicuristRepository.existsByUserId(userAccount.getId())) {

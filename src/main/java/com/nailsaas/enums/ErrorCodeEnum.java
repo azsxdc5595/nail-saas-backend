@@ -57,7 +57,7 @@ public enum ErrorCodeEnum {
     PERMISSION_DENIED("PERMISSION_001", HttpStatus.FORBIDDEN, "無權限操作此資源"),
 
     // Request validation
-    REQUEST_INVALID("REQUEST_001", HttpStatus.BAD_REQUEST, "請求資料格式錯誤");
+    REQUEST_INVALID("REQUEST_001", HttpStatus.BAD_REQUEST, "圖片資料格式錯誤");
 
     private final String code;
     private final HttpStatus status;

@@ -1,7 +1,6 @@
 
 package com.nailsaas.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -10,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-
 import com.nailsaas.domain.ApplyServiceItemRequest;
 import com.nailsaas.domain.RemoveServiceNameRequest;
 import com.nailsaas.domain.SearchServiceItemRequest;
@@ -19,12 +16,17 @@ import com.nailsaas.domain.SearchServiceItemResponse;
 import com.nailsaas.domain.UpdateServiceItemRequest;
 import com.nailsaas.service.ServiceItemService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/serviceItem")
 public class ServiceItemController {
 
-    @Autowired
-    private ServiceItemService service;
+    private final ServiceItemService service;
+
+    ServiceItemController(ServiceItemService service) {
+        this.service = service;
+    }
 
     // 美甲師查詢自己的服務項目
     @GetMapping("/searchMyServiceItem")

@@ -1,7 +1,6 @@
 
 package com.nailsaas.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,8 +19,11 @@ import jakarta.validation.Valid;
 public class ManicuristController {
 
 
-    @Autowired
-    private ManicuristService service;
+    private final ManicuristService service;
+
+    ManicuristController(ManicuristService service) {
+        this.service = service;
+    }
 
     // 美甲師查詢自己美甲師資訊
     @GetMapping("/me")
