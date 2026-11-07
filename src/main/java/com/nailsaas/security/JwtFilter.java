@@ -1,12 +1,15 @@
 package com.nailsaas.security;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.nailsaas.service.UserRoleService;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -19,9 +22,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final UserRoleService userRoleService;
 
-    JwtFilter(JwtUtil jwtUtil) {
+    JwtFilter(JwtUtil jwtUtil, UserRoleService userRoleService) {
         this.jwtUtil = jwtUtil;
+        this.userRoleService = userRoleService;
     }
 
     @Override
@@ -32,7 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String method = request.getMethod();
-        String uri = request.getRequestURI();
+        String uri = request.getServletPath();
 
         // 允許瀏覽器先發送 CORS 預檢請求
         if ("OPTIONS".equalsIgnoreCase(method)) {
@@ -40,9 +45,9 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 登入、註冊及刷新 Token 等 Auth API 不在此 Filter 驗證
-        // Refresh Token 必須在 AuthService 中另外驗證及比對 DB
-        if (uri.startsWith("/auth/")) {
+        // 公開 Auth API 不驗證 Access Token；logout 仍需驗證登入者。
+        // Refresh Token 由 AuthController 另外驗證及比對 DB。
+        if (isPublicAuthEndpoint(uri)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -60,13 +65,18 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 // 從已驗證的 Access Token 取得使用者代碼
                 String userCode = jwtUtil.getUserCode(token);
+                List<SimpleGrantedAuthority> authorities = userRoleService
+                        .getActiveRoleCodes(userCode)
+                        .stream()
+                        .map(roleCode -> new SimpleGrantedAuthority("ROLE_" + roleCode))
+                        .toList();
 
                 // 建立已認證的 Spring Security 身分
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userCode,
                                 null,
-                                Collections.emptyList()
+                                authorities
                         );
 
                 SecurityContextHolder.getContext()
@@ -95,6 +105,14 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isPublicAuthEndpoint(String uri) {
+        return uri.equals("/auth/register")
+                || uri.equals("/auth/verify")
+                || uri.equals("/auth/login")
+                || uri.equals("/auth/refresh")
+                || uri.startsWith("/auth/forgot-password/");
     }
 
     /**

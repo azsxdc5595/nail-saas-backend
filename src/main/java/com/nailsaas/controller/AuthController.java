@@ -26,6 +26,7 @@ import com.nailsaas.entity.EmailVerification;
 import com.nailsaas.entity.RefreshToken;
 import com.nailsaas.entity.UserAccount;
 import com.nailsaas.enums.ErrorCodeEnum;
+import com.nailsaas.enums.SystemRoleCodeEnum;
 import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.EmailVerificationRepository;
 import com.nailsaas.repository.RefreshTokenRepository;
@@ -33,6 +34,7 @@ import com.nailsaas.repository.UserAccountRepository;
 import com.nailsaas.security.JwtUtil;
 import com.nailsaas.service.MailService;
 import com.nailsaas.service.UserAccountService;
+import com.nailsaas.service.UserRoleService;
 import com.nailsaas.util.Generate;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -61,7 +63,9 @@ public class AuthController {
     
     private final MailService mailService;
 
-    AuthController(UserAccountService userAccountService, UserAccountRepository userAccountRepository, EmailVerificationRepository emailVerificationRepository, PasswordEncoder passwordEncoder, Generate generate, MailService mailService, JwtUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
+    private final UserRoleService userRoleService;
+
+    AuthController(UserAccountService userAccountService, UserAccountRepository userAccountRepository, EmailVerificationRepository emailVerificationRepository, PasswordEncoder passwordEncoder, Generate generate, MailService mailService, JwtUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, UserRoleService userRoleService) {
         this.userAccountService = userAccountService;
         this.userAccountRepository = userAccountRepository;
         this.emailVerificationRepository = emailVerificationRepository;
@@ -70,6 +74,7 @@ public class AuthController {
         this.mailService = mailService;
         this.jwtUtil = jwtUtil;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.userRoleService = userRoleService;
     }
 
     @PostMapping("/register")
@@ -136,6 +141,7 @@ public class AuthController {
 
         user.setVerified("1");
         userAccountRepository.save(user);
+        userRoleService.grantRole(user.getId(), SystemRoleCodeEnum.MEMBER);
 
         // 直接登入
         String accessToken = jwtUtil.generateAccessToken(user.getCode());

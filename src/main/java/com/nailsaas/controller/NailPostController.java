@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.MediaType;
 
 import jakarta.validation.Valid;
@@ -33,24 +34,28 @@ public class NailPostController {
 
     // 美甲師查看自己的作品貼文
     @GetMapping("/searchMyNailPost")
+    @PreAuthorize("hasAnyRole('MANICURIST', 'SHOP_MANAGER', 'ADMIN')")
     public SearchNailPostResponse searchMyNailPost(@RequestBody SearchNailPostRequest req) {
         return service.searchMyNailPost(req);
     }
 
     // 美甲師新增自己的作品貼文
     @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('MANICURIST', 'SHOP_MANAGER', 'ADMIN')")
     public void addNailPost(@Valid @ModelAttribute ApplyNailPostRequest req) {
         service.addNailPost(req);
     }
 
     // 美甲師調整自己的作品貼文
     @PatchMapping(value = "/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('MANICURIST', 'SHOP_MANAGER', 'ADMIN')")
     public void updateNailPost(@Valid @ModelAttribute UpdateNailPostRequest req) {
         service.updateNailPost(req);
     }
 
     // 美甲師移除自己的作品貼文
     @DeleteMapping("/remove")
+    @PreAuthorize("hasAnyRole('MANICURIST', 'SHOP_MANAGER', 'ADMIN')")
     public void removeNailPost(@Valid @RequestBody RemoveNailPostRequest req) {
         service.removeNailPost(req);
     }

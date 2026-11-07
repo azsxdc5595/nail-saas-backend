@@ -2,13 +2,14 @@
 
 ## Table Overview
 
-以下資料表皆已依 Oracle DDL 驗證。
+以下資料表以 Oracle DDL 為準；標示 Proposed 的項目尚未於現行資料庫驗證。
 
 貼文及圖片資料模型以目前提供的 [NSAS Schema 重建 SQL](NSAS-Schema-Rebuild.sql) 為準；較早的 Schema Baseline 尚未列出 `NAIL_POST_IMAGE`。
 
 | Table | Description | Schema Summary | Status |
 |------|-------------|----------------|--------|
 | USER_ACCOUNT | 會員帳號 | PK `USER_ID`；`USER_CODE`、`EMAIL` 唯一 | Verified |
+| USER_ROLE | 使用者角色指派與帳戶授權狀態 | 複合 PK `USER_ID`, `ROLE_CODE`；FK `USER_ID` → `USER_ACCOUNT` | Proposed |
 | EMAIL_VERIFICATION | 信箱驗證紀錄 | PK `ID`；包含驗證碼、狀態與到期時間 | Verified |
 | REFRESH_TOKEN | Refresh Token | PK `ID`；儲存 Token 與到期時間 | Verified |
 | ADDRESS | 地址資料 | PK `ADDRESS_ID`；`ADDRESS_CODE` 唯一 | Verified |
@@ -29,4 +30,7 @@
 ---
 
 ## Notes
+
+- `USER_ROLE` 已納入重建 DDL，但尚未於現行 Oracle Schema 驗證；正式 migration 與部署仍待安排。
+- `USER_ROLE` 的詳細設計見 [USER-ROLE-Design.md](USER-ROLE-Design.md)。
 

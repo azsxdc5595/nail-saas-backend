@@ -83,6 +83,8 @@
 - Error Response 應遵循統一格式。
 - API 不得直接暴露資料庫設計。
 - API 規格應先完成文件，再進行程式開發。
+- 需角色的端點使用 Spring Security method security 依 `USER_ROLE` authority 判斷；無效／缺少 JWT 回傳 401，已登入但角色不符回傳 403。
+- API 層角色授權不取代 Service 層的資源所有權與商業規則驗證。
 
 ---
 

@@ -31,7 +31,7 @@ Last Updated: 2026-10-30
 
 | Module | Status | Description | Primary Tables |
 | --- | --- | --- | --- |
-| Authentication | Review Required | 註冊、登入、信箱驗證、Refresh Token 及忘記密碼。 | USER_ACCOUNT<br>EMAIL_VERIFICATION<br>REFRESH_TOKEN |
+| Authentication | Review Required | 註冊、登入、信箱驗證、Refresh Token、忘記密碼及帳戶角色授權。 | USER_ACCOUNT<br>EMAIL_VERIFICATION<br>REFRESH_TOKEN<br>USER_ROLE |
 | Shop Management | Review Required | 建立店家、邀請碼、加入店家及店家管理。 | SHOP<br>ADDRESS<br>SHOP_INVITE_CODE |
 | Manicurist | Review Required | 建立及維護美甲師資料與店家歸屬。 | MANICURIST |
 | Service Item | Review Required | 建立、查詢、修改及刪除服務項目。 | SERVICE_ITEM |

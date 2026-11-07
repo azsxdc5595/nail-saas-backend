@@ -18,7 +18,7 @@ Base path: `/serviceItem`
 
 ## Authorization
 
-`POST /serviceItem/search` 為公開瀏覽端點，不要求 JWT，且只搜尋啟用的服務項目；訪客提供的 `userCode` 不會用來查詢停用服務。其他端點需 JWT；修改及刪除須確認服務項目屬於目前登入美甲師。
+`POST /serviceItem/search` 為公開瀏覽端點，不要求 JWT，且只搜尋啟用的服務項目；訪客提供的 `userCode` 不會用來查詢停用服務。查詢自己的服務及新增、修改、刪除需要 `MANICURIST`、`SHOP_MANAGER` 或 `ADMIN` 系統角色；修改及刪除仍須確認服務項目屬於目前登入美甲師。
 
 ## PATCH Request / Validation
 

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.nailsaas.domain.GetManicuristInfoReponse;
 import com.nailsaas.domain.GetManicuristInfoRequest;
@@ -16,6 +17,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/manicurist")
+@PreAuthorize("hasAnyRole('MANICURIST', 'SHOP_MANAGER', 'ADMIN')")
 public class ManicuristController {
 
 

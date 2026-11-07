@@ -48,6 +48,7 @@
 | Table | Query Scenario | Search Condition | Candidate Index | Status |
 |------|----------------|------------------|-----------------|--------|
 | USER_ACCOUNT | 登入、查詢會員 | EMAIL、USER_CODE、USER_NAME | EMAIL (Unique)、USER_CODE (Unique)、USER_NAME（視需求） | Review Required |
+| USER_ROLE | 取得使用者啟用角色、授權檢查 | USER_ID、IS_ACTIVE | PK `(USER_ID, ROLE_CODE)` 已涵蓋前綴查詢；不另建索引 | Proposed |
 | EMAIL_VERIFICATION | 查詢最新待驗證紀錄 | EMAIL、STATUS、CREATE_TIME | `(USER_CODE, EMAIL, STATUS)`；評估是否加入 `CREATE_TIME` | Review Required |
 | REFRESH_TOKEN | Refresh Token 驗證、刪除 Token | TOKEN、USER_CODE | TOKEN (Unique)、USER_CODE | Review Required |
 | MANICURIST | 依會員取得美甲師 | USER_ID | USER_ID | Review Required |

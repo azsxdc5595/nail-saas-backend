@@ -19,7 +19,7 @@ Controller base path: `/nailPost`
 
 ## Authorization
 
-`POST /nailPost/search` 與 `POST /nailPost/detail` 為公開瀏覽端點，不要求 JWT，且只回傳啟用貼文。其餘端點需 JWT。建立貼文要求目前使用者可查得美甲師資料；修改及刪除會比對貼文所屬美甲師。
+`POST /nailPost/search` 與 `POST /nailPost/detail` 為公開瀏覽端點，不要求 JWT，且只回傳啟用貼文。查看自己的貼文、建立、修改及刪除需要 `MANICURIST`、`SHOP_MANAGER` 或 `ADMIN` 系統角色。建立貼文要求目前使用者可查得美甲師資料；修改及刪除會比對貼文所屬美甲師。
 
 ## Request
 

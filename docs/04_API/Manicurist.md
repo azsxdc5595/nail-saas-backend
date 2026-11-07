@@ -15,7 +15,7 @@ Base path: `/manicurist`
 
 ## Authorization
 
-JWT authentication required. PATCH 的目標由目前登入者的 user code 決定，不接受 Request 指定其他美甲師。
+需要 `MANICURIST`、`SHOP_MANAGER` 或 `ADMIN` 系統角色。PATCH 的目標由目前登入者的 user code 決定，不接受 Request 指定其他美甲師。
 
 ## PATCH Request / Validation
 

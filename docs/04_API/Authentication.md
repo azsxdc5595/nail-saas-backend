@@ -6,7 +6,7 @@
 
 ## Authorization
 
-註冊、驗證、登入、refresh 與忘記密碼流程為公開端點；logout 需登入。
+註冊、驗證、登入、refresh 與忘記密碼流程為公開端點；logout 需有效 Access Token。
 
 ## Endpoints
 
@@ -29,12 +29,14 @@
 ## Business Rules
 
 - 註冊 Request 僅接受帳號欄位，不接受資料庫 Entity 欄位，避免客戶端指定驗證狀態或識別碼。
+- Email 驗證成功並保存帳戶驗證狀態後，系統指派 `MEMBER` 角色；角色指派與驗證交易一併提交。
 - Refresh token 以 HttpOnly Cookie 傳送並於更新時輪替。
 
 ## Related Tables
 
-`USER_ACCOUNT`, `EMAIL_VERIFICATION`, `REFRESH_TOKEN`
+`USER_ACCOUNT`, `USER_ROLE`, `EMAIL_VERIFICATION`, `REFRESH_TOKEN`
 
 ## Change History
 
 - 2026-10-30：依實際 Controller 路徑及 Request 驗證更新。
+- 2026-11-08：Email 驗證成功後自動指派 `MEMBER` 系統角色。

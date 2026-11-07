@@ -11,6 +11,7 @@ Base path: `/user`
 | Method | Path | Purpose | Success response |
 | --- | --- | --- | --- |
 | GET | `/user/me` | 查詢目前使用者資料 | `GetUserInfoReponse` |
+| GET | `/user/me/roles` | 查詢目前使用者啟用中的系統角色 | `GetUserRolesResponse` |
 | PATCH | `/user/me` | 修改目前使用者名稱或電話 | Empty body |
 | PATCH | `/user/password` | 驗證舊密碼後更新密碼 | Empty body |
 
@@ -26,7 +27,7 @@ JWT authentication required。更新目標固定為目前登入使用者。
 
 ## Response
 
-兩個 PATCH 成功時皆回傳空 body。錯誤回應使用共用 `ApiError` 格式。
+`GET /me/roles` 回傳角色代碼清單，例如 `{"roles":["MEMBER"]}`；僅回傳 `USER_ROLE.IS_ACTIVE = 1` 的角色。角色代碼為 `MEMBER`、`MANICURIST`、`SHOP_MANAGER`、`ADMIN`。兩個 PATCH 成功時皆回傳空 body。錯誤回應使用共用 `ApiError` 格式。
 
 ## Error Codes / HTTP Status
 
@@ -46,7 +47,7 @@ JWT authentication required。更新目標固定為目前登入使用者。
 
 ## Related Tables / User Flow
 
-- Tables: `USER_ACCOUNT`
+- Tables: `USER_ACCOUNT`, `USER_ROLE`
 - User Flow: 帳號資料與密碼維護流程尚未列入 Core-Flows。
 
 ## Change History
@@ -54,3 +55,4 @@ JWT authentication required。更新目標固定為目前登入使用者。
 | Date | Change |
 | --- | --- |
 | 2026-10-30 | 明確記錄使用者資料 PATCH 語意及密碼長度規則。 |
+| 2026-11-07 | 新增查詢目前使用者啟用角色的唯讀端點。 |

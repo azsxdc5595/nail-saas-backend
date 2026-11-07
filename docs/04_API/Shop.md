@@ -6,7 +6,7 @@
 
 ## Authorization
 
-所有端點需登入。建立邀請碼僅允許角色 `OWNER` 或 `ADMIN`。
+所有端點需登入。系統角色授權如下：Create / Join 需 `MEMBER` 或 `ADMIN`；Me / Invite 需 `MANICURIST`、`SHOP_MANAGER` 或 `ADMIN`。建立邀請碼仍由 Service 檢查店內職務 `OWNER` 或 `ADMIN`。
 
 ## Endpoints
 
@@ -26,11 +26,15 @@
 
 - Invite 權限由登入者所屬 Manicurist 的角色判斷，不接受客戶端指定角色或店家。
 - 邀請碼有效期限為 5 分鐘，成功加入後只能使用一次。
+- `/shop/create` 成功保存 Manicurist 後，指派帳戶系統角色 `SHOP_MANAGER` 與 `MANICURIST`。
+- `/shop/join` 成功保存 Manicurist 後，指派帳戶系統角色 `MANICURIST`；保留帳戶既有其他系統角色。
+- Manicurist 資料與對應角色指派在同一 Service transaction 內提交。
 
 ## Related Tables
 
-`SHOP`, `MANICURIST`, `SHOP_INVITE_CODE`, `ADDRESS`
+`SHOP`, `MANICURIST`, `SHOP_INVITE_CODE`, `ADDRESS`, `USER_ROLE`
 
 ## Change History
 
 - 2026-10-30：新增邀請碼 OWNER / ADMIN 權限及欄位長度規格。
+- 2026-11-08：定義建立店家及加入店家成功後的帳戶系統角色指派。

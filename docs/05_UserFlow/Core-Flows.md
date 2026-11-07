@@ -40,6 +40,7 @@
 | Member Reservation Journey | 會員完整預約流程 | Review Required |
 | Manicurist Portfolio Management | 美甲師作品貼文管理 | Review Required |
 | Shop Invitation | 店家邀請美甲師 | Review Required |
+| Account Role Assignment | 驗證帳戶及建立／加入店家後指派系統角色 | Review Required |
 
 ---
 
@@ -168,6 +169,22 @@ flowchart TD
 - 重複加入處理
 - 權限驗證
 - 錯誤處理流程
+
+成功加入店家並建立 `MANICURIST` 關聯後，帳戶取得 `MANICURIST` 系統角色；既有角色保留。
+
+---
+
+## Account Role Assignment
+
+### Rules
+
+| Trigger | Assigned System Roles |
+|---------|------------------------|
+| Email 驗證成功並保存帳戶驗證狀態 | `MEMBER` |
+| `/shop/create` 成功建立店家及 Manicurist 關聯 | `SHOP_MANAGER`, `MANICURIST` |
+| `/shop/join` 成功建立 Manicurist 關聯 | `MANICURIST` |
+
+角色指派由後端在觸發流程的同一交易內完成；任何角色寫入失敗時，該流程一併回滾。多角色帳戶保留既有角色。角色不得由客戶端自行指定。
 
 ---
 

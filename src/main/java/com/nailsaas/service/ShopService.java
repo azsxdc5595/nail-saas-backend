@@ -20,6 +20,7 @@ import com.nailsaas.enums.ErrorCodeEnum;
 import com.nailsaas.enums.InviteCodeStatusEnum;
 import com.nailsaas.enums.ManicuristStatusEnum;
 import com.nailsaas.enums.RoleEnum;
+import com.nailsaas.enums.SystemRoleCodeEnum;
 import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.ManicuristRepository;
 import com.nailsaas.repository.ShopInviteCodeRepository;
@@ -41,15 +42,18 @@ public class ShopService {
 
     private final PermissionCheckService permissionCheckService;
 
+    private final UserRoleService userRoleService;
+
     ShopService(ShopInviteCodeRepository shopInviteCodeRepository, ShopRepository shopRepository,
             ManicuristRepository manicuristRepository, AddressService addressService, Generate generate,
-            PermissionCheckService permissionCheckService) {
+            PermissionCheckService permissionCheckService, UserRoleService userRoleService) {
         this.shopInviteCodeRepository = shopInviteCodeRepository;
         this.shopRepository = shopRepository;
         this.manicuristRepository = manicuristRepository;
         this.addressService = addressService;
         this.generate = generate;
         this.permissionCheckService = permissionCheckService;
+        this.userRoleService = userRoleService;
     }
 
     // 新增店家
@@ -87,6 +91,8 @@ public class ShopService {
         } catch (DataIntegrityViolationException e) {
             throw new BusinessException(ErrorCodeEnum.MANICURIST_ALREADY_EXISTS);
         }
+        userRoleService.grantRole(userAccount.getId(), SystemRoleCodeEnum.SHOP_MANAGER);
+        userRoleService.grantRole(userAccount.getId(), SystemRoleCodeEnum.MANICURIST);
     }
 
     // 查詢
@@ -197,6 +203,7 @@ public class ShopService {
         } catch (DataIntegrityViolationException e) {
             throw new BusinessException(ErrorCodeEnum.MANICURIST_ALREADY_EXISTS);
         }
+        userRoleService.grantRole(userAccount.getId(), SystemRoleCodeEnum.MANICURIST);
     }
 
 }

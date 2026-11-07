@@ -95,6 +95,8 @@ API --> Mail[SMTP Mail]
 - Entity 應忠實對應資料庫 DDL。
 - DTO 不得包含商業邏輯。
 - Business Rule 不得散落於多個 Layer。
+- 系統角色由 `USER_ROLE` 提供；JWT 驗證後載入至 Spring Security authorities，API 角色由 method security 註記執行（ADR-0004）。
+- Controller 層角色授權不取代 Service 層的資源所有權及業務規則檢查。
 
 ---
 

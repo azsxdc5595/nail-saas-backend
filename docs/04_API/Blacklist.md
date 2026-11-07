@@ -6,7 +6,7 @@
 
 ## Authorization
 
-所有端點需登入且目前帳號必須具有 Manicurist 身分。資料範圍由登入者決定。
+所有端點需 `MANICURIST`、`SHOP_MANAGER` 或 `ADMIN` 系統角色。資料範圍由登入者決定；Service 仍會解析目前帳號的 Manicurist 關聯。
 
 ## Endpoints
 
