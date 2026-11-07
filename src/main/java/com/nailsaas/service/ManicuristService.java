@@ -2,17 +2,14 @@
 package com.nailsaas.service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nailsaas.domain.GetManicuristInfoReponse;
-import com.nailsaas.domain.GetManicuristInfoRequest;
 import com.nailsaas.domain.UpdateManicuristRequest;
 import com.nailsaas.entity.Manicurist;
 import com.nailsaas.enums.ErrorCodeEnum;
-import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.ManicuristRepository;
 
 @Service
@@ -46,10 +43,8 @@ public class ManicuristService {
     }
 
     // 查詢
-    public GetManicuristInfoReponse getManicuristInfo(GetManicuristInfoRequest req) {
-        Optional<Manicurist> optionalManicurist = Optional.ofNullable(manicuristRepository.findByCode(req.getManicuristCode())
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.MANICURIST_NOT_FOUND)));
-        Manicurist manicurist = optionalManicurist.get();
+    public GetManicuristInfoReponse getManicuristInfo() {
+    	Manicurist manicurist = permissionCheckService.getCurrentManicurist(ErrorCodeEnum.MANICURIST_NOT_FOUND);
         GetManicuristInfoReponse reponse = GetManicuristInfoReponse.builder().displayName(manicurist.getDisplayName()).intro(manicurist.getIntro()).status(manicurist.getStatus()).build();
         return reponse;
     }

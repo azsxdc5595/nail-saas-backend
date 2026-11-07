@@ -1,15 +1,14 @@
 
 package com.nailsaas.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.nailsaas.domain.GetManicuristInfoReponse;
-import com.nailsaas.domain.GetManicuristInfoRequest;
 import com.nailsaas.domain.UpdateManicuristRequest;
 import com.nailsaas.service.ManicuristService;
 
@@ -29,8 +28,8 @@ public class ManicuristController {
 
     // 美甲師查詢自己美甲師資訊
     @GetMapping("/me")
-    public GetManicuristInfoReponse getShopInfo(@RequestBody GetManicuristInfoRequest req) {
-        return service.getManicuristInfo(req);
+    public GetManicuristInfoReponse getShopInfo() {
+        return service.getManicuristInfo();
     }
     
     // 美甲師修改自己美甲師資訊

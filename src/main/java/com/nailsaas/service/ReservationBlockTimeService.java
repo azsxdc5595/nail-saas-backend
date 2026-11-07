@@ -3,42 +3,34 @@ package com.nailsaas.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nailsaas.domain.ApplyReservationBlockTimeRequest;
-import com.nailsaas.domain.GetManicuristInfoRequest;
 import com.nailsaas.domain.GetReservationBlockTimeReponse;
 import com.nailsaas.domain.RemoveReservationBlockTimeRequest;
 import com.nailsaas.entity.Manicurist;
 import com.nailsaas.entity.ReservationBlockTime;
 import com.nailsaas.enums.ErrorCodeEnum;
 import com.nailsaas.exception.BusinessException;
-import com.nailsaas.repository.ManicuristRepository;
 import com.nailsaas.repository.ReservationBlockTimeRepository;
 
 @Service
 public class ReservationBlockTimeService {
     
-    private final ManicuristRepository manicuristRepository;
-    
     private final ReservationBlockTimeRepository reservationBlockTimeRepository;
 
     private final PermissionCheckService permissionCheckService;
 
-    ReservationBlockTimeService(PermissionCheckService permissionCheckService, ReservationBlockTimeRepository reservationBlockTimeRepository, ManicuristRepository manicuristRepository) {
+    ReservationBlockTimeService(PermissionCheckService permissionCheckService, ReservationBlockTimeRepository reservationBlockTimeRepository) {
         this.permissionCheckService = permissionCheckService;
         this.reservationBlockTimeRepository = reservationBlockTimeRepository;
-        this.manicuristRepository = manicuristRepository;
     }
 
     // 查詢美甲師的不可預約時間
-    public GetReservationBlockTimeReponse getBlockTime(GetManicuristInfoRequest req) {
-        Optional<Manicurist> optionalManicurist = Optional.ofNullable(manicuristRepository.findByCode(req.getManicuristCode())
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.MANICURIST_NOT_FOUND)));
-        Manicurist manicurist = optionalManicurist.get();
+    public GetReservationBlockTimeReponse getBlockTime() {
+        Manicurist manicurist = permissionCheckService.getCurrentManicurist();
         List<ReservationBlockTime> reservationBlockList = reservationBlockTimeRepository.findByManicuristId(manicurist.getId());
         GetReservationBlockTimeReponse reponse = GetReservationBlockTimeReponse.builder().reservationBlockTimeList(reservationBlockList).build();
         return reponse;

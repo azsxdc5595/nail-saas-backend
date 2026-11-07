@@ -1,16 +1,15 @@
 
 package com.nailsaas.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.nailsaas.domain.ApplyReservationBlockTimeRequest;
-import com.nailsaas.domain.GetManicuristInfoRequest;
 import com.nailsaas.domain.GetReservationBlockTimeReponse;
 import com.nailsaas.domain.RemoveReservationBlockTimeRequest;
 import com.nailsaas.service.ReservationBlockTimeService;
@@ -29,8 +28,8 @@ public class ReservationBlockTimeController {
     }
 
     @GetMapping("/getBlockTime")
-    public GetReservationBlockTimeReponse getBlockTime(@RequestBody GetManicuristInfoRequest req) {
-        return service.getBlockTime(req);
+    public GetReservationBlockTimeReponse getBlockTime() {
+        return service.getBlockTime();
     }
     
     // 美甲師自己增設不可預約時間
