@@ -16,6 +16,23 @@ Base path: `/serviceItem`
 | DELETE | `/serviceItem/remove` | 刪除自己的服務項目 | Empty body |
 | POST | `/serviceItem/search` | 搜尋服務項目 | `SearchServiceItemResponse` |
 
+## GET Request: `/serviceItem/searchMyServiceItem`
+
+篩選條件以 URL query parameters 傳入，不使用 request body。所有篩選欄位皆可省略；美甲師身分由目前登入的 JWT 決定，客戶端不應傳入 `userCode`（即使傳入也不會作為查詢身分）。
+
+| Query parameter | Type | Description |
+| --- | --- | --- |
+| `serviceName` | string | 服務名稱，模糊搜尋 |
+| `minPrice` | decimal | 最低價格 |
+| `maxPrice` | decimal | 最高價格 |
+| `minDurationMin` | integer | 最短服務時間（分鐘） |
+| `maxDurationMin` | integer | 最長服務時間（分鐘） |
+| `description` | string | 服務描述，模糊搜尋 |
+| `pageNo` | integer | 頁碼，從 1 開始，預設 1 |
+| `pageSize` | integer | 每頁筆數，預設 20，最多 100 |
+
+範例：`GET /serviceItem/searchMyServiceItem?pageNo=1&pageSize=20&minPrice=500`
+
 ## Authorization
 
 `POST /serviceItem/search` 為公開瀏覽端點，不要求 JWT，且只搜尋啟用的服務項目；訪客提供的 `userCode` 不會用來查詢停用服務。查詢自己的服務及新增、修改、刪除需要 `MANICURIST`、`SHOP_MANAGER` 或 `ADMIN` 系統角色；修改及刪除仍須確認服務項目屬於目前登入美甲師。

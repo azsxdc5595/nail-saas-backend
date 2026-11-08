@@ -16,10 +16,12 @@ Controller base path: `/nailPost`
 | DELETE | `/nailPost/remove` | 刪除自己的貼文 | Empty body |
 | POST | `/nailPost/search` | 搜尋啟用貼文 | `SearchNailPostResponse` |
 | POST | `/nailPost/detail` | 查看啟用貼文及其全部圖片 | `GetNailPostDetailResponse` |
+| POST | `/nailPost/my/detail` | 美甲師查看自己的貼文明細（含未啟用貼文） | `GetNailPostDetailResponse` |
+| GET | `/nailPost/image/{imageId}` | 取得公開啟用貼文圖片；美甲師可讀取自己未啟用貼文的圖片 | Image binary |
 
 ## Authorization
 
-`POST /nailPost/search` 與 `POST /nailPost/detail` 為公開瀏覽端點，不要求 JWT，且只回傳啟用貼文。查看自己的貼文、建立、修改及刪除需要 `MANICURIST`、`SHOP_MANAGER` 或 `ADMIN` 系統角色。建立貼文要求目前使用者可查得美甲師資料；修改及刪除會比對貼文所屬美甲師。
+`POST /nailPost/search` 與 `POST /nailPost/detail` 為公開瀏覽端點，不要求 JWT，且只回傳啟用貼文。`POST /nailPost/my/detail`、查看自己的貼文清單、建立、修改及刪除需要 `MANICURIST`、`SHOP_MANAGER` 或 `ADMIN` 系統角色。個人明細可讀取啟用或未啟用貼文，但會比對目前使用者的美甲師身分與貼文所屬美甲師。建立貼文要求目前使用者可查得美甲師資料；修改及刪除也會比對貼文所屬美甲師。
 
 ## Request
 
@@ -32,8 +34,9 @@ Controller base path: `/nailPost`
 ## Response
 
 - 搜尋清單每篇貼文包含 `coverImage`；有標記封面時回傳該圖，否則回傳排序最前圖片，無圖片時為 null。
-- 明細回傳依 `sortOrder`、`imageId` 排序的全部圖片 metadata。現有 `reservable` 欄位仍會回傳 null，因預約可用性規則尚未定義。
-- 圖片 metadata 欄位為 `imageId`、`storageName`、`storagePath`、`originalName`、`contentType`、`fileSize`、`sortOrder`、`isCover`。
+- 明細回傳依 `sortOrder`、`imageId` 排序的全部圖片 metadata。清單封面及明細每張圖片皆包含可直接用於載入圖片的相對 `imageUrl`（例如 `/nailPost/image/123`）；前端應以 API 網域解析此路徑。圖片端點回傳實際檔案及其 MIME 類型；未啟用貼文圖片僅限所屬美甲師讀取。現有 `reservable` 欄位仍會回傳 null，因預約可用性規則尚未定義。
+- 明細包含 `enabled` 狀態；公開明細只會回傳啟用貼文（`1`），作者明細可回傳 `0` 或 `1`，管理端應使用此欄位呈現及調整公開狀態。
+- 圖片 metadata 欄位為 `imageId`、`storageName`、`storagePath`、`imageUrl`、`originalName`、`contentType`、`fileSize`、`sortOrder`、`isCover`。
 - 建立、修改及刪除目前回傳空 body。
 
 ## Validation
@@ -63,6 +66,7 @@ Controller base path: `/nailPost`
 - 刪除貼文由資料庫 FK cascade 刪除圖片 metadata。
 - Schema 未限制封面唯一性或每篇貼文最少圖片數量。
 - 圖片寫入本機 `D:\Nail\postImage\{MANICURIST_CODE}\yyyyMMdd\`，檔名由後端時間戳加唯一識別值產生並保留副檔名；資料庫 `STORAGE_PATH` 儲存相對路徑。貼文交易回滾時清除新檔，替換或刪除貼文時於交易提交後刪除舊檔。
+- 圖片透過 `GET /nailPost/image/{imageId}` 提供，不將本機檔案系統路徑暴露為可直接存取 URL；讀取公開啟用貼文圖片不需登入，讀取未啟用貼文圖片則需確認目前使用者為所屬美甲師，並限制檔案位於設定的儲存根目錄內。
 
 ## Related Tables / User Flow
 
@@ -76,4 +80,5 @@ Controller base path: `/nailPost`
 | --- | --- |
 | 2026-11-05 | 開放作品搜尋與明細免登入；僅公開啟用貼文。 |
 | 2026-11-06 | 新增及修改改用 multipart 圖片上傳；metadata 由後端儲存與解析產生。 |
+| 2026-11-08 | 搜尋／明細圖片回傳 `imageUrl`，新增啟用貼文圖片讀取端點；新增美甲師讀取自己未啟用貼文明細的端點及 `enabled` 狀態欄位。 |
 | 2026-10-30 | 對齊多圖貼文 schema，新增圖片 metadata request/response、排序、封面及圖片清單更新語意。 |

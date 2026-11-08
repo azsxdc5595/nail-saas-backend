@@ -1,17 +1,18 @@
 package com.nailsaas.controller;
 
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.http.MediaType;
-
-import jakarta.validation.Valid;
 
 import com.nailsaas.domain.ApplyNailPostRequest;
 import com.nailsaas.domain.GetNailPostDetailRequest;
@@ -21,6 +22,8 @@ import com.nailsaas.domain.SearchNailPostRequest;
 import com.nailsaas.domain.SearchNailPostResponse;
 import com.nailsaas.domain.UpdateNailPostRequest;
 import com.nailsaas.service.NailPostService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/nailPost")
@@ -35,7 +38,7 @@ public class NailPostController {
     // 美甲師查看自己的作品貼文
     @GetMapping("/searchMyNailPost")
     @PreAuthorize("hasAnyRole('MANICURIST', 'SHOP_MANAGER', 'ADMIN')")
-    public SearchNailPostResponse searchMyNailPost(@RequestBody SearchNailPostRequest req) {
+    public SearchNailPostResponse searchMyNailPost(@ModelAttribute SearchNailPostRequest req) {
         return service.searchMyNailPost(req);
     }
 
@@ -70,5 +73,20 @@ public class NailPostController {
     @PostMapping("/detail")
     public GetNailPostDetailResponse detailNailPost(@Valid @RequestBody GetNailPostDetailRequest req) {
         return service.detailNailPost(req);
+    }
+
+    // 美甲師查看自己的作品貼文明細（包含未啟用貼文）
+    @PostMapping("/my/detail")
+    @PreAuthorize("hasAnyRole('MANICURIST', 'SHOP_MANAGER', 'ADMIN')")
+    public GetNailPostDetailResponse detailMyNailPost(@Valid @RequestBody GetNailPostDetailRequest req) {
+        return service.detailMyNailPost(req);
+    }
+
+    @GetMapping(value = "/image/{imageId}")
+    public ResponseEntity<Resource> getImage(@PathVariable Long imageId) {
+        var image = service.loadImage(imageId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(image.contentType()))
+                .body(image.resource());
     }
 }

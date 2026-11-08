@@ -11,6 +11,8 @@ public class NailPostImageData {
 
     private String storagePath;
 
+    private String imageUrl;
+
     private String originalName;
 
     private String contentType;

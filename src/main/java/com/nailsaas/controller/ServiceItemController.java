@@ -1,14 +1,15 @@
 
 package com.nailsaas.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.nailsaas.domain.ApplyServiceItemRequest;
 import com.nailsaas.domain.RemoveServiceNameRequest;
@@ -32,7 +33,7 @@ public class ServiceItemController {
     // 美甲師查詢自己的服務項目
     @GetMapping("/searchMyServiceItem")
     @PreAuthorize("hasAnyRole('MANICURIST', 'SHOP_MANAGER', 'ADMIN')")
-    public SearchServiceItemResponse searchMyServiceItem(@RequestBody SearchServiceItemRequest req) {
+    public SearchServiceItemResponse searchMyServiceItem(@ModelAttribute SearchServiceItemRequest req) {
         return service.searchMyServiceItem(req);
     }
 

@@ -29,6 +29,9 @@ public class GetNailPostDetailResponse {
     /** 主色系代碼 */
     private String mainColorCode;
 
+    /** 是否啟用（公開明細僅會是 1；作者明細可為 0 或 1） */
+    private Integer enabled;
+
     /** 是否可預約 */
     private Boolean reservable;
 

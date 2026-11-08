@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -97,6 +98,16 @@ public class NailPostService {
                 .findByIdAndEnabled(req.getPostId(), 1)
                 .orElseThrow(() -> new BusinessException(ErrorCodeEnum.NAIL_POST_NOT_FOUND));
 
+        return toDetailResponse(nailPost);
+    }
+
+    // 美甲師查看自己的作品貼文明細（包含未啟用貼文）
+    @Transactional(readOnly = true)
+    public GetNailPostDetailResponse detailMyNailPost(GetNailPostDetailRequest req) {
+        return toDetailResponse(findOwnedPost(req.getPostId()));
+    }
+
+    private GetNailPostDetailResponse toDetailResponse(NailPost nailPost) {
         GetNailPostDetailResponse response = new GetNailPostDetailResponse();
 
         response.setPostId(nailPost.getId());
@@ -106,11 +117,26 @@ public class NailPostService {
         response.setStyleCode(nailPost.getStyleCode());
         response.setSeasonCode(nailPost.getSeasonCode());
         response.setMainColorCode(nailPost.getMainColorCode());
+        response.setEnabled(nailPost.getEnabled());
         response.setImages(nailPostImageRepository.findAllByPostIdOrderBySortOrderAscIdAsc(nailPost.getId())
                 .stream().map(this::toImageData).collect(Collectors.toList()));
 
         return response;
     }
+
+    @Transactional(readOnly = true)
+    public ImageResponse loadImage(Long imageId) {
+        NailPostImage image = nailPostImageRepository.findById(imageId)
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.NAIL_POST_NOT_FOUND));
+        NailPost nailPost = nailPostRepository.findById(image.getPostId())
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.NAIL_POST_NOT_FOUND));
+        if (!Integer.valueOf(1).equals(nailPost.getEnabled())) {
+            permissionCheckService.checkCurrentManicuristOwnership(nailPost.getManicuristId());
+        }
+        return new ImageResponse(imageStorageService.load(image.getStoragePath()), image.getContentType());
+    }
+
+    public record ImageResponse(Resource resource, String contentType) {}
 
     // 條件查詢作品貼文
     private SearchNailPostResponse executeNailPostSearch(SearchNailPostRequest req, Integer enabled) {
@@ -282,6 +308,7 @@ public class NailPostService {
         data.setImageId(image.getId());
         data.setStorageName(image.getStorageName());
         data.setStoragePath(image.getStoragePath());
+        data.setImageUrl("/nailPost/image/" + image.getId());
         data.setOriginalName(image.getOriginalName());
         data.setContentType(image.getContentType());
         data.setFileSize(image.getFileSize());

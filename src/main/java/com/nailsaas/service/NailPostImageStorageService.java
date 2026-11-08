@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -81,6 +83,22 @@ public class NailPostImageStorageService {
             Files.deleteIfExists(storedFile);
         } catch (IOException ex) {
             throw new IllegalStateException("圖片刪除失敗", ex);
+        }
+    }
+
+    public Resource load(String storagePath) {
+        Path storedFile = storageRoot.resolve(storagePath).normalize();
+        if (!storedFile.startsWith(storageRoot)) {
+            throw new BusinessException(ErrorCodeEnum.REQUEST_INVALID);
+        }
+        try {
+            Resource resource = new UrlResource(storedFile.toUri());
+            if (!resource.exists() || !resource.isReadable() || !Files.isRegularFile(storedFile)) {
+                throw new BusinessException(ErrorCodeEnum.NAIL_POST_NOT_FOUND);
+            }
+            return resource;
+        } catch (IOException ex) {
+            throw new IllegalStateException("圖片讀取失敗", ex);
         }
     }
 
