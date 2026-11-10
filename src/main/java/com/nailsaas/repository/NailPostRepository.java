@@ -44,6 +44,10 @@ public interface NailPostRepository extends JpaRepository<NailPost, Long> {
             OR u.code = :userCode
         )
           AND (
+            :manicuristId IS NULL
+            OR n.manicuristId = :manicuristId
+        )
+          AND (
             :enabled IS NULL
             OR n.enabled = :enabled
         )
@@ -79,6 +83,7 @@ public interface NailPostRepository extends JpaRepository<NailPost, Long> {
     """)
     Page<NailPost> search(
             @Param("userCode") String userCode,
+            @Param("manicuristId") Long manicuristId,
             @Param("enabled") Integer enabled,
             @Param("displayName") String displayName,
             @Param("description") String description,

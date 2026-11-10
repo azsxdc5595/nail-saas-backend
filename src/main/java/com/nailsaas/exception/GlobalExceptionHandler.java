@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -43,6 +44,20 @@ public class GlobalExceptionHandler {
                 errorCode.getMessage(),
                 LocalDateTime.now()
         );
+
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(error);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException ex) {
+        ErrorCodeEnum errorCode = ErrorCodeEnum.PERMISSION_DENIED;
+        ApiError error = new ApiError(
+                errorCode.getCode(),
+                errorCode.getStatus().value(),
+                errorCode.getMessage(),
+                LocalDateTime.now());
 
         return ResponseEntity
                 .status(errorCode.getStatus())

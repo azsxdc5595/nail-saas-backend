@@ -55,6 +55,7 @@ public class SecurityConfig {
                 ).permitAll()
                 // Public discovery endpoints; write operations remain authenticated.
                 .requestMatchers(HttpMethod.GET, "/nailPost/image/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/manicurist/public/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/nailPost/search", "/nailPost/detail", "/serviceItem/search").permitAll()
                 .anyRequest().authenticated()
             )

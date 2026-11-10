@@ -7,6 +7,8 @@ import lombok.Data;
 @Builder
 public class GetManicuristInfoReponse {
 
+    private Long manicuristId;
+
     private String displayName;
 
     private String intro;

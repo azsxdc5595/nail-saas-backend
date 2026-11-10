@@ -10,6 +10,7 @@ import com.nailsaas.domain.GetManicuristInfoReponse;
 import com.nailsaas.domain.UpdateManicuristRequest;
 import com.nailsaas.entity.Manicurist;
 import com.nailsaas.enums.ErrorCodeEnum;
+import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.ManicuristRepository;
 
 @Service
@@ -45,8 +46,20 @@ public class ManicuristService {
     // 查詢
     public GetManicuristInfoReponse getManicuristInfo() {
     	Manicurist manicurist = permissionCheckService.getCurrentManicurist(ErrorCodeEnum.MANICURIST_NOT_FOUND);
-        GetManicuristInfoReponse reponse = GetManicuristInfoReponse.builder().displayName(manicurist.getDisplayName()).intro(manicurist.getIntro()).status(manicurist.getStatus()).build();
+        GetManicuristInfoReponse reponse = GetManicuristInfoReponse.builder().manicuristId(manicurist.getId()).displayName(manicurist.getDisplayName()).intro(manicurist.getIntro()).status(manicurist.getStatus()).build();
         return reponse;
+    }
+
+    @Transactional(readOnly = true)
+    public GetManicuristInfoReponse getPublicManicuristInfo(Long manicuristId) {
+        Manicurist manicurist = manicuristRepository.findById(manicuristId)
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.MANICURIST_NOT_FOUND));
+        return GetManicuristInfoReponse.builder()
+                .manicuristId(manicurist.getId())
+                .displayName(manicurist.getDisplayName())
+                .intro(manicurist.getIntro())
+                .status(manicurist.getStatus())
+                .build();
     }
 
 }

@@ -22,6 +22,10 @@
 - Create: `shopName`、`address`、`phone` 必填，長度上限分別 255、255、50；`description` 最多 500。
 - Join: `inviteCode` 必填且最多 50。
 
+## Error Responses
+
+- 已登入但缺少端點所需系統角色時，回傳 HTTP 403，錯誤碼 `PERMISSION_001`，訊息「無權限操作此資源」。
+
 ## Business Rules
 
 - Invite 權限由登入者所屬 Manicurist 的角色判斷，不接受客戶端指定角色或店家。
@@ -38,3 +42,4 @@
 
 - 2026-10-30：新增邀請碼 OWNER / ADMIN 權限及欄位長度規格。
 - 2026-11-08：定義建立店家及加入店家成功後的帳戶系統角色指派。
+- 2026-11-10：明確定義系統角色授權拒絕時的 403 錯誤回應。

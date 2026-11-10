@@ -12,6 +12,8 @@ import lombok.EqualsAndHashCode;
 public class SearchNailPostRequest extends CustomPage {
 
     private String userCode;
+
+    private Long manicuristId;
     
     /** 美甲師對外顯示名稱 */
     private String displayName;

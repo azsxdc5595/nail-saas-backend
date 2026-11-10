@@ -83,6 +83,7 @@ public class ServiceItemService {
         Page<ServiceItem> serviceItemPage =
                 serviceItemRepository.search(
                     req.getUserCode(),
+                    req.getManicuristId(),
                     req.getServiceName(),
                     req.getMinPrice(),
                     req.getMaxPrice(),

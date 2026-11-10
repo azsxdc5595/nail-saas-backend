@@ -146,6 +146,7 @@ public class NailPostService {
         Page<NailPost> nailPostPage =
                 nailPostRepository.search(
                     req.getUserCode(),
+                    req.getManicuristId(),
                     enabled,
                     req.getDisplayName(),
                     req.getDescription(),

@@ -12,6 +12,8 @@ import lombok.EqualsAndHashCode;
 public class SearchServiceItemRequest extends CustomPage {
 
     private String userCode;
+
+    private Long manicuristId;
     
     /** 服務名稱 */
     private String serviceName;

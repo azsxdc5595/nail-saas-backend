@@ -54,6 +54,10 @@ public interface ServiceItemRepository extends JpaRepository<ServiceItem, Long> 
             OR u.code = :userCode
         )
           AND (
+            :manicuristId IS NULL
+            OR n.manicuristId = :manicuristId
+        )
+          AND (
             :serviceName IS NULL
             OR n.serviceName LIKE %:serviceName%
         )
@@ -81,6 +85,7 @@ public interface ServiceItemRepository extends JpaRepository<ServiceItem, Long> 
     """)
     Page<ServiceItem> search(
             @Param("userCode") String userCode,
+            @Param("manicuristId") Long manicuristId,
             @Param("serviceName") String serviceName,
             @Param("minPrice") BigDecimal minPrice,
             @Param("maxPrice") BigDecimal maxPrice,
