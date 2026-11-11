@@ -3,7 +3,7 @@
 -- for browsing and API testing. Does not create schema objects or touch production.
 -- Run while connected to the intended test schema. Existing matching SEED-* records are reused.
 -- All accounts use the same BCrypt test password: ares0418
--- USER_ROLE is intentionally omitted because its live-schema status is not verified.
+-- USER_ROLE seeding follows Account Role Assignment and requires USER_ROLE in the target test schema.
 -- NAIL_POST_IMAGE rows reference unique files under D:\Nail\postImage\SEED-MANI-xx\20261110\.
 -- Reservation and review rows are omitted because their business flows/schema are pending.
 
@@ -119,6 +119,36 @@ BEGIN
                     source.email, '092200' || TO_CHAR(i, 'FM0000'),
                     SYSTIMESTAMP, SYSTIMESTAMP, '1');
     END LOOP;
+
+    -- All verified seed accounts get MEMBER; manicurists get MANICURIST, and the three seeded shop creators get SHOP_MANAGER.
+    -- No ADMIN test account is defined by this seed.
+    MERGE INTO USER_ROLE target
+    USING (
+        SELECT ua.USER_ID, 'MEMBER' ROLE_CODE
+          FROM USER_ACCOUNT ua
+         WHERE ua.USER_CODE LIKE 'SEED-USER-%'
+        UNION ALL
+        SELECT ua.USER_ID, 'MANICURIST' ROLE_CODE
+          FROM USER_ACCOUNT ua
+          JOIN MANICURIST m ON m.USER_ID = ua.USER_ID
+         WHERE ua.USER_CODE LIKE 'SEED-USER-MANI-%'
+           AND m.MANICURIST_CODE LIKE 'SEED-MANI-%'
+        UNION ALL
+        SELECT ua.USER_ID, 'SHOP_MANAGER' ROLE_CODE
+          FROM USER_ACCOUNT ua
+          JOIN MANICURIST m ON m.USER_ID = ua.USER_ID
+         WHERE ua.USER_CODE LIKE 'SEED-USER-MANI-%'
+           AND m.MANICURIST_CODE LIKE 'SEED-MANI-%'
+           AND m.MANICURIST_CODE IN ('SEED-MANI-01', 'SEED-MANI-03', 'SEED-MANI-05')
+    ) source
+    ON (target.USER_ID = source.USER_ID AND target.ROLE_CODE = source.ROLE_CODE)
+    WHEN MATCHED THEN
+        UPDATE SET target.IS_ACTIVE = 1,
+                   target.UPDATE_TIME = CASE WHEN target.IS_ACTIVE <> 1
+                                             THEN SYSTIMESTAMP ELSE target.UPDATE_TIME END
+    WHEN NOT MATCHED THEN
+        INSERT (USER_ID, ROLE_CODE, IS_ACTIVE, GRANTED_BY_USER_ID, CREATE_TIME, UPDATE_TIME)
+        VALUES (source.USER_ID, source.ROLE_CODE, 1, NULL, SYSTIMESTAMP, SYSTIMESTAMP);
 
     -- 120 services: 20 per manicurist.
     FOR i IN 1..6 LOOP

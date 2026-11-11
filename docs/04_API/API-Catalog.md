@@ -31,7 +31,7 @@
 | Shop | `/shop` | v1 | Review Required | Shop.md |
 | Manicurist | `/manicurist` | v1 | Review Required | Manicurist.md |
 | Reservation | `/api/reservations` | v1 | Planned | Reservation.md |
-| Reservation Block Time | `/reservationBlockTime` | v1 | Review Required | Reservation-Block-Time.md |
+| Manicurist Work Schedule | `/manicuristWorkSchedule` | v1 | Draft | Manicurist-Work-Schedule.md |
 | Portfolio | `/nailPost` | v1 | Review Required | Portfolio.md |
 | Service Item | `/serviceItem` | v1 | Review Required | Service-Item.md |
 | Blacklist | `/blacklist` | v1 | Review Required | Blacklist.md |

@@ -16,7 +16,7 @@
 | SHOP | 店家 | FK `ADDRESS_ID` → `ADDRESS` | Verified |
 | SHOP_INVITE_CODE | 店家邀請碼 | PK `CODE`；FK `SHOP_ID` → `SHOP`；`STATUS` Check Constraint | Verified |
 | MANICURIST | 美甲師 | FK `SHOP_ID`、`USER_ID`；`USER_ID` 唯一 | Verified |
-| RESERVATION_BLOCK_TIME | 不可預約時段 | Block Type Check；提供時段查詢索引 | Verified |
+| [MANICURIST_WORK_SCHEDULE](MANICURIST-WORK-SCHEDULE.md) | 美甲師特定日期的實際上班區間 | FK 至 `MANICURIST`；日期及分鐘區間 Check | Proposed |
 | MANICURIST_BLACKLIST | 美甲師黑名單 | 僅 PK；尚未建立 FK 與唯一限制 | Pending Design |
 | MANICURIST_WORK | 美甲師作品貼文 | 僅 PK；尚未建立 FK | Pending Design |
 | NAIL_POST | 美甲作品貼文 | PK `POST_ID`；作品屬性及啟用狀態 | Verified |

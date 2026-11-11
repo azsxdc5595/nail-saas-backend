@@ -2,7 +2,7 @@
 
 Version: 1.0.0
 Status: Draft
-Last Updated: 2026-07-28
+Last Updated: 2026-11-11
 
 ---
 
@@ -76,7 +76,7 @@ Roadmap 作為產品開發依據，提供團隊了解目前開發進度與後續
 ## Modules
 
 - Reservation
-- Reservation Block
+- Manicurist Work Schedule
 - Review
 
 ## Deliverables

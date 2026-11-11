@@ -2,7 +2,7 @@
 
 Version: 1.0.0  
 Status: Draft  
-Last Updated: 2026-07-28
+Last Updated: 2026-11-11
 
 ---
 
@@ -64,7 +64,7 @@ Nail SaaS 是一套提供美甲店、美甲師及會員使用的 Software-as-a-S
 | Portfolio | 美甲作品貼文展示及管理。 |
 | Service Item | 服務項目及價格管理。 |
 | Reservation | 預約建立、處理及生命週期管理。 |
-| Reservation Block | 不可預約時段管理。 |
+| Manicurist Work Schedule | 美甲師每日實際排班管理。 |
 | Review | 完成服務後的雙向評價。 |
 | Blacklist | 黑名單管理。 |
 | Search | 搜尋作品貼文、美甲師及店家。 |
@@ -117,7 +117,7 @@ Mutual Review
 - Portfolio
 - Service Item
 - Reservation
-- Reservation Block
+- Manicurist Work Schedule
 - Review
 - Blacklist
 

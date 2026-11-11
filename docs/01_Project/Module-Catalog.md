@@ -2,7 +2,7 @@
 
 Version: 1.0.0  
 Status: Draft  
-Last Updated: 2026-10-30
+Last Updated: 2026-11-11
 
 ---
 
@@ -36,7 +36,7 @@ Last Updated: 2026-10-30
 | Manicurist | Review Required | 建立及維護美甲師資料與店家歸屬。 | MANICURIST |
 | Service Item | Review Required | 建立、查詢、修改及刪除服務項目。 | SERVICE_ITEM |
 | Portfolio | Review Required | 美甲作品貼文及多圖 metadata 展示與管理。 | NAIL_POST<br>NAIL_POST_IMAGE |
-| Reservation Block | Review Required | 管理不可預約時段。 | RESERVATION_BLOCK_TIME |
+| Manicurist Work Schedule | In Design | 管理美甲師特定日期的實際上班區間。 | MANICURIST_WORK_SCHEDULE |
 | Blacklist | Review Required | 管理會員黑名單。 | MANICURIST_BLACKLIST |
 | Reservation | In Design | 建立、接受、取消、完成及管理預約。 | RESERVATION<br>RESERVATION_ITEM |
 | Review | In Design | 完成服務後建立雙向評價。 | REVIEW |
@@ -63,7 +63,7 @@ Authentication
     │               │
     │               ├── Portfolio
     │               ├── Service Item
-    │               ├── Reservation Block
+    │               ├── Manicurist Work Schedule
     │               ├── Off Day
     │               └── Blacklist
     │

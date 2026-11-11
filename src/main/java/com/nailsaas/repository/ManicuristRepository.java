@@ -4,12 +4,19 @@ package com.nailsaas.repository;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import jakarta.persistence.LockModeType;
 
 import com.nailsaas.entity.Manicurist;
 
 public interface ManicuristRepository extends JpaRepository<Manicurist, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT m FROM Manicurist m WHERE m.id = :manicuristId")
+    Optional<Manicurist> findByIdForUpdate(@Param("manicuristId") Long manicuristId);
     
     Optional<Manicurist> findByCode(String code);
 

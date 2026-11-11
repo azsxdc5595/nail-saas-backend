@@ -29,8 +29,9 @@ public enum ErrorCodeEnum {
     // ServiceItem
     SERVICE_ITEM_NOT_FOUND("SERVICE_ITEM_001", HttpStatus.BAD_REQUEST, "服務項目不存在"),
 
-    // Reservation block time
-    RESERVATION_BLOCK_NOT_FOUND("BLOCK_TIME_001", HttpStatus.NOT_FOUND, "不可預約時段不存在"),
+    // Manicurist work schedule
+    MANICURIST_SCHEDULE_INTERVAL_OVERLAP("MANICURIST_SCHEDULE_001", HttpStatus.BAD_REQUEST, "同一天的排班區間不可重疊"),
+    MANICURIST_SCHEDULE_RESERVATION_CONFLICT("MANICURIST_SCHEDULE_002", HttpStatus.CONFLICT, "排班調整與尚未結束的預約時段衝突"),
 
     // Auth
     AUTH_EMAIL_NOT_VERIFIED("AUTH_001", HttpStatus.BAD_REQUEST, "請先完成Email驗證"),

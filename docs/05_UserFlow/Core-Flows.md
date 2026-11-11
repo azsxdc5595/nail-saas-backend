@@ -7,7 +7,7 @@
 | Project | Nail SaaS |
 | Version | v1.0.0 |
 | Status | Review Required |
-| Last Updated | 2026-10-30 |
+| Last Updated | 2026-11-11 |
 
 ---
 
@@ -195,6 +195,7 @@ flowchart TD
 - 預約取消流程
 - 預約改期流程
 - 美甲師拒絕預約流程
+- 美甲師每日排班管理流程
 - 預約聊天流程
 - 黑名單管理流程
 - 收藏作品貼文流程
