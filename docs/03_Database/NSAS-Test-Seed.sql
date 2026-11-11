@@ -2,6 +2,7 @@
 -- Purpose: provide synthetic shops, accounts, manicurists, 120 services, and 70 portfolio posts
 -- for browsing and API testing. Does not create schema objects or touch production.
 -- Run while connected to the intended test schema. Existing matching SEED-* records are reused.
+-- Requires at least one existing ADDRESS row; existing rows are reused and this seed does not create addresses.
 -- All accounts use the same BCrypt test password: ares0418
 -- USER_ROLE seeding follows Account Role Assignment and requires USER_ROLE in the target test schema.
 -- NAIL_POST_IMAGE rows reference unique files under D:\Nail\postImage\SEED-MANI-xx\20261110\.
@@ -15,6 +16,7 @@ DECLARE
     v_code VARCHAR2(36);
     v_email VARCHAR2(100);
     v_shop_no PLS_INTEGER;
+    v_address_count PLS_INTEGER;
     v_shop_name VARCHAR2(100);
     v_city VARCHAR2(100);
     v_district VARCHAR2(100);
@@ -29,20 +31,22 @@ DECLARE
     v_mani_no PLS_INTEGER;
     v_description NAIL_POST.DESCRIPTION%TYPE;
 BEGIN
-    -- 3 shops and their addresses.
+    -- 3 shops linked to existing address lookup rows.
+    SELECT COUNT(*) INTO v_address_count FROM ADDRESS;
+    IF v_address_count = 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'ADDRESS must contain at least one existing row before running this seed.');
+    END IF;
+
     FOR i IN 1..3 LOOP
-        v_code := 'SEED-ADDR-' || TO_CHAR(i, 'FM00');
-        v_city := CASE i WHEN 1 THEN '臺北市' WHEN 2 THEN '新北市' ELSE '臺中市' END;
-        v_district := CASE i WHEN 1 THEN '大安區' WHEN 2 THEN '板橋區' ELSE '西區' END;
+        SELECT ADDRESS_ID, CITY, DISTRICT
+          INTO v_address_id, v_city, v_district
+          FROM (
+                SELECT ADDRESS_ID, CITY, DISTRICT,
+                       ROW_NUMBER() OVER (ORDER BY ADDRESS_ID) AS ROW_NO
+                  FROM ADDRESS
+          )
+         WHERE ROW_NO = MOD(i - 1, v_address_count) + 1;
 
-        MERGE INTO ADDRESS target
-        USING (SELECT v_code address_code, v_city city, v_district district FROM dual) source
-        ON (target.ADDRESS_CODE = source.address_code)
-        WHEN NOT MATCHED THEN
-            INSERT (ADDRESS_ID, ADDRESS_CODE, CITY, DISTRICT)
-            VALUES (SEQ_ADDRESS.NEXTVAL, source.address_code, source.city, source.district);
-
-        SELECT ADDRESS_ID INTO v_address_id FROM ADDRESS WHERE ADDRESS_CODE = v_code;
         v_code := 'SEED-SHOP-' || TO_CHAR(i, 'FM00');
         v_shop_name := CASE i WHEN 1 THEN '測試指尖研究所' WHEN 2 THEN '測試柔光美甲' ELSE '測試光澤工房' END;
 
