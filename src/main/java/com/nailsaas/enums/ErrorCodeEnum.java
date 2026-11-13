@@ -29,6 +29,16 @@ public enum ErrorCodeEnum {
     // ServiceItem
     SERVICE_ITEM_NOT_FOUND("SERVICE_ITEM_001", HttpStatus.BAD_REQUEST, "服務項目不存在"),
 
+    // Reservation
+    RESERVATION_NOT_FOUND("RESERVATION_001", HttpStatus.NOT_FOUND, "預約不存在"),
+    RESERVATION_NOT_PARTICIPANT("RESERVATION_002", HttpStatus.FORBIDDEN, "無權操作此預約"),
+    RESERVATION_INVALID_STATUS("RESERVATION_003", HttpStatus.CONFLICT, "目前預約狀態不可執行此操作"),
+    RESERVATION_SERVICE_INVALID("RESERVATION_004", HttpStatus.BAD_REQUEST, "服務項目無效或不屬於此美甲師"),
+    RESERVATION_TIME_INVALID("RESERVATION_005", HttpStatus.BAD_REQUEST, "預約開始時間無效"),
+    RESERVATION_OUTSIDE_SCHEDULE("RESERVATION_006", HttpStatus.CONFLICT, "預約時間不在美甲師排班內"),
+    RESERVATION_TIME_CONFLICT("RESERVATION_007", HttpStatus.CONFLICT, "該時段已被預約"),
+    RESERVATION_MEMBER_ROLE_REQUIRED("RESERVATION_008", HttpStatus.BAD_REQUEST, "指定帳戶不是有效會員"),
+
     // Manicurist work schedule
     MANICURIST_SCHEDULE_INTERVAL_OVERLAP("MANICURIST_SCHEDULE_001", HttpStatus.BAD_REQUEST, "同一天的排班區間不可重疊"),
     MANICURIST_SCHEDULE_RESERVATION_CONFLICT("MANICURIST_SCHEDULE_002", HttpStatus.CONFLICT, "排班調整與尚未結束的預約時段衝突"),
@@ -58,7 +68,7 @@ public enum ErrorCodeEnum {
     PERMISSION_DENIED("PERMISSION_001", HttpStatus.FORBIDDEN, "無權限操作此資源"),
 
     // Request validation
-    REQUEST_INVALID("REQUEST_001", HttpStatus.BAD_REQUEST, "圖片資料格式錯誤");
+    REQUEST_INVALID("REQUEST_001", HttpStatus.BAD_REQUEST, "請求資料格式錯誤");
 
     private final String code;
     private final HttpStatus status;

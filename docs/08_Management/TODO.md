@@ -8,7 +8,8 @@
 - [ ] 依 DDL 為 16 張現有 Table 建立逐表設計文件，補欄位用途、預設值、商業規則與 API 對應。
 - [ ] 確認 `NAIL_POST` 與 `MANICURIST_WORK` 的產品職責與是否需共存。
 - [ ] 確認黑名單的產品影響範圍（搜尋、作品貼文、聊天、預約），再設計流程與 API。
-- [ ] 定義 Reservation 狀態機、可預約／衝突規則、取消規則與權限。
+- [ ] 審查 Reservation API 第一版的狀態轉換、取消／放鳥權限與服務內容協商限制。
+- [ ] 實作 PENDING 逾時背景排程；第一版暫以查詢／操作時惰性更新 EXPIRED。
 - [ ] 建立 USER_ROLE migration/backfill，為既有已驗證帳戶與美甲師補齊角色，並定義角色授予／撤銷及稽核流程。
 - [ ] 評估 JWT Filter 每次驗證載入啟用角色所增加的 Oracle 查詢負載。
 - [ ] 安裝或指定 JDK 17，執行完整 Maven 編譯與測試。

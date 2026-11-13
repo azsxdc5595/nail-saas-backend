@@ -49,7 +49,7 @@ Both endpoints return the date and its intervals ordered by start minute:
 ## Business Rules
 
 - Replacing a date is atomic: the complete set is validated and saved in one transaction.
-- The update is rejected if any `PENDING` or `CONFIRMED` reservation overlapping that date is not fully contained in one of the proposed work intervals. An empty interval list is also rejected when such a reservation exists.
+- The update is rejected if any `PENDING` or `CONFIRMED` reservation overlapping that date is not fully contained in the proposed continuous working time. Adjacent intervals are treated as continuous; intervals separated by a gap remain separate. An empty interval list is also rejected when such a reservation exists.
 - Schedule intervals are not reservation slots. Reservation availability is calculated from these intervals, selected service duration, and occupied reservation intervals.
 - Invalid minute values or overlapping intervals return a validation error; reservation conflicts return HTTP 409.
 

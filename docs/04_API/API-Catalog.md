@@ -7,7 +7,7 @@
 | Project | Nail SaaS |
 | Version | v1.0.0 |
 | Status | Review Required |
-| Last Updated | 2026-10-30 |
+| Last Updated | 2026-11-13 |
 
 ---
 
@@ -30,7 +30,7 @@
 | User | `/user` | v1 | Review Required | User.md |
 | Shop | `/shop` | v1 | Review Required | Shop.md |
 | Manicurist | `/manicurist` | v1 | Review Required | Manicurist.md |
-| Reservation | `/api/reservations` | v1 | Planned | Reservation.md |
+| Reservation | `/api/reservations` | v1 | Draft | Reservation.md |
 | Manicurist Work Schedule | `/manicuristWorkSchedule` | v1 | Draft | Manicurist-Work-Schedule.md |
 | Portfolio | `/nailPost` | v1 | Review Required | Portfolio.md |
 | Service Item | `/serviceItem` | v1 | Review Required | Service-Item.md |

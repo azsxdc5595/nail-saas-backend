@@ -43,4 +43,6 @@ public interface ManicuristRepository extends JpaRepository<Manicurist, Long> {
     Long searchManicuristIdByUserCode(@Param("userCode") String userCode);
     
     boolean existsByUserId(Long userId);
+
+    Optional<Manicurist> findByUserId(Long userId);
 }

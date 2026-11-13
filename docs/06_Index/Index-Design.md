@@ -7,7 +7,7 @@
 | Project | Nail SaaS |
 | Version | v1.0.0 |
 | Status | Review Required |
-| Last Updated | 2026-11-11 |
+| Last Updated | 2026-11-13 |
 
 ---
 
@@ -55,6 +55,8 @@
 | SHOP | 查詢會員所屬店家 | USER_ID → SHOP_ID | `MANICURIST(USER_ID, SHOP_ID)` | Review Required |
 | SHOP_INVITE_CODE | 驗證邀請碼、查詢有效邀請碼 | CODE、SHOP_ID、STATUS | CODE（PK）、`(SHOP_ID, STATUS)` | Review Required |
 | MANICURIST_WORK_SCHEDULE | 查詢指定美甲師指定日期的工作區間 | MANICURIST_ID、WORK_DATE | `(MANICURIST_ID, WORK_DATE)` | Proposed；已納入重建 DDL，部署後以 Availability SQL 和 Oracle 執行計畫驗證 |
+| RESERVATION | 查詢美甲師時段衝突、會員或店家預約 | MANICURIST_ID、START_TIME、END_TIME；USER_ID；SHOP_ID | `(MANICURIST_ID, START_TIME, END_TIME)`、`USER_ID`、`SHOP_ID` | Proposed；已納入重建 DDL，待 Reservation 查詢 SQL 與 Oracle 執行計畫驗證 |
+| RESERVATION_SERVICE | 依預約識別碼取得提議／已確認服務明細 | RESERVATION_ID | PK `(RESERVATION_ID, SERVICE_SEQ)` 的前綴 | Proposed；由複合主鍵支援，不另建索引 |
 | MANICURIST_BLACKLIST | 查詢黑名單、判斷是否封鎖 | MANICURIST_ID、USER_ID | MANICURIST_ID、`(MANICURIST_ID, USER_ID)`（Unique） | Review Required |
 | NAIL_POST | 搜尋及分頁美甲師作品貼文 | MANICURIST_ID、ENABLED、CREATE_TIME | 評估 `(MANICURIST_ID, ENABLED, CREATE_TIME)` | Review Required |
 | NAIL_POST_IMAGE | 依貼文排序取得圖片 | POST_ID、SORT_ORDER | `(POST_ID, SORT_ORDER)` | Verified |

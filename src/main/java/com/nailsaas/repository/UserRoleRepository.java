@@ -13,6 +13,8 @@ public interface UserRoleRepository extends JpaRepository<UserRole, UserRoleId> 
 
     List<UserRole> findByUserIdAndIsActiveOrderByRoleCodeAsc(Long userId, Integer isActive);
 
+    boolean existsByUserIdAndRoleCodeAndIsActive(Long userId, String roleCode, Integer isActive);
+
     @Query("""
             SELECT userRole.roleCode
             FROM UserRole userRole

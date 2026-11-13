@@ -2,10 +2,13 @@ package com.nailsaas.exception;
 
 import java.time.LocalDateTime;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -28,6 +31,28 @@ public class GlobalExceptionHandler {
                 errorCode.getCode(),
                 errorCode.getStatus().value(),
                 message,
+                LocalDateTime.now());
+        return ResponseEntity.status(errorCode.getStatus()).body(error);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> handleUnreadableRequest(HttpMessageNotReadableException ex) {
+        ErrorCodeEnum errorCode = ErrorCodeEnum.REQUEST_INVALID;
+        ApiError error = new ApiError(
+                errorCode.getCode(),
+                errorCode.getStatus().value(),
+                errorCode.getMessage(),
+                LocalDateTime.now());
+        return ResponseEntity.status(errorCode.getStatus()).body(error);
+    }
+
+    @ExceptionHandler({ ConstraintViolationException.class, MethodArgumentTypeMismatchException.class })
+    public ResponseEntity<ApiError> handleInvalidRequestParameter(Exception ex) {
+        ErrorCodeEnum errorCode = ErrorCodeEnum.REQUEST_INVALID;
+        ApiError error = new ApiError(
+                errorCode.getCode(),
+                errorCode.getStatus().value(),
+                errorCode.getMessage(),
                 LocalDateTime.now());
         return ResponseEntity.status(errorCode.getStatus()).body(error);
     }

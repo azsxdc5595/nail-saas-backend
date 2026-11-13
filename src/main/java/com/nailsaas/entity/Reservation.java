@@ -1,15 +1,19 @@
 package com.nailsaas.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.Data;
+import com.nailsaas.enums.ReservationStatusEnum;
 
 @Entity
 @Table(name = "RESERVATION", schema = "NSAS")
@@ -43,14 +47,18 @@ public class Reservation {
     @Column(name = "END_TIME")
     private LocalDateTime endTime;
 
-    @Column(name = "STATUS")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS", nullable = false)
+    private ReservationStatusEnum status;
+
+    @Column(name = "INITIATOR_TYPE", nullable = false)
+    private String initiatorType;
 
     @Column(name = "TOTAL_DURATION_MIN")
     private Integer totalDurationMin;
 
     @Column(name = "TOTAL_PRICE")
-    private Integer totalPrice;
+    private BigDecimal totalPrice;
 
     @Column(name = "CUSTOMER_NOTE")
     private String customerNote;

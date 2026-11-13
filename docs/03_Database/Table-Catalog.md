@@ -23,8 +23,8 @@
 | NAIL_POST_IMAGE | 美甲作品貼文圖片 | PK `IMAGE_ID`；FK `POST_ID` → `NAIL_POST`；貼文刪除時 cascade | Verified |
 | SERVICE_ITEM | 服務項目 | FK `MANICURIST_ID` → `MANICURIST`；`SERVICE_CODE` 唯一 | Verified |
 | PROMOTION | 優惠活動 | 僅 PK；尚未建立 FK | Pending Design |
-| RESERVATION | 預約主檔 | 使用 `RESERVATION_DATE`、`START_SLOT_ID`、`SLOT_COUNT` 表示預約時段 | Entity Mismatch |
-| RESERVATION_SERVICE | 預約服務明細 | 複合 PK；FK `RESERVATION`、`SERVICE_ITEM` | Verified |
+| [RESERVATION](RESERVATION-DESIGN.md#reservation) | 預約主檔 | PK `RESERVATION_ID`；儲存提議方、預約對象、時間、狀態及總價／總時長 | Proposed |
+| [RESERVATION_SERVICE](RESERVATION-DESIGN.md#reservation_service) | 預約服務明細 | 複合 PK；保存 PENDING 提議及已確認服務快照 | Proposed |
 | REVIEW | 評價 | 僅 PK；尚未建立 FK 與唯一限制 | Pending Design |
 
 ---

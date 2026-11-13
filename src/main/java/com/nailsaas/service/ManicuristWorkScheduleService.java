@@ -16,6 +16,7 @@ import com.nailsaas.domain.ReplaceManicuristWorkScheduleRequest;
 import com.nailsaas.entity.ManicuristWorkSchedule;
 import com.nailsaas.entity.Reservation;
 import com.nailsaas.enums.ErrorCodeEnum;
+import com.nailsaas.enums.ReservationStatusEnum;
 import com.nailsaas.exception.BusinessException;
 import com.nailsaas.repository.ManicuristRepository;
 import com.nailsaas.repository.ManicuristWorkScheduleRepository;
@@ -24,7 +25,8 @@ import com.nailsaas.repository.ReservationRepository;
 @Service
 public class ManicuristWorkScheduleService {
 
-    private static final Set<String> TIME_OCCUPYING_RESERVATION_STATUSES = Set.of("PENDING", "CONFIRMED");
+    private static final Set<ReservationStatusEnum> TIME_OCCUPYING_RESERVATION_STATUSES =
+            Set.of(ReservationStatusEnum.PENDING, ReservationStatusEnum.CONFIRMED);
 
     private final ManicuristWorkScheduleRepository scheduleRepository;
     private final ReservationRepository reservationRepository;
@@ -90,27 +92,67 @@ public class ManicuristWorkScheduleService {
         LocalDateTime dayStart = workDate.atStartOfDay();
         LocalDateTime dayEnd = workDate.plusDays(1).atStartOfDay();
         List<Reservation> reservations = reservationRepository
-                .findByManicuristIdAndStatusInAndStartTimeLessThanAndEndTimeGreaterThanOrderByStartTimeAsc(
-                        manicuristId,
-                        TIME_OCCUPYING_RESERVATION_STATUSES,
-                        dayEnd,
-                        dayStart);
+                .findByManicuristIdAndStatusInAndStartTimeLessThanAndEndTimeGreaterThan(
+                        manicuristId, TIME_OCCUPYING_RESERVATION_STATUSES, dayEnd, dayStart);
+        LocalDateTime now = LocalDateTime.now();
+        List<Reservation> expiredReservations = reservations.stream()
+                .filter(reservation -> reservation.getStatus() == ReservationStatusEnum.PENDING)
+                .filter(this::isResponseExpired)
+                .peek(reservation -> {
+                    reservation.setStatus(ReservationStatusEnum.EXPIRED);
+                    reservation.setUpdateTime(now);
+                })
+                .toList();
+        if (!expiredReservations.isEmpty()) {
+            reservationRepository.saveAll(expiredReservations);
+        }
 
-        boolean conflict = reservations.stream().anyMatch(reservation -> proposedIntervals.stream()
-                .noneMatch(interval -> containsReservation(workDate, interval, reservation)));
+        boolean conflict = reservations.stream()
+                .filter(reservation -> TIME_OCCUPYING_RESERVATION_STATUSES.contains(reservation.getStatus()))
+                .anyMatch(reservation -> !containsReservation(workDate, proposedIntervals, reservation));
         if (conflict) {
             throw new BusinessException(ErrorCodeEnum.MANICURIST_SCHEDULE_RESERVATION_CONFLICT);
         }
     }
 
+    private boolean isResponseExpired(Reservation reservation) {
+        LocalDateTime lastActionTime = reservation.getUpdateTime() != null
+                ? reservation.getUpdateTime()
+                : reservation.getCreateTime();
+        return lastActionTime != null && !LocalDateTime.now().isBefore(lastActionTime.plusHours(24));
+    }
+
     private boolean containsReservation(
             LocalDate workDate,
-            ManicuristWorkScheduleIntervalRequest interval,
+            List<ManicuristWorkScheduleIntervalRequest> intervals,
             Reservation reservation) {
-        LocalDateTime intervalStart = workDate.atStartOfDay().plusMinutes(interval.getStartMinuteOfDay());
-        LocalDateTime intervalEnd = workDate.atStartOfDay().plusMinutes(interval.getEndMinuteOfDay());
-        return !reservation.getStartTime().isBefore(intervalStart)
-                && !reservation.getEndTime().isAfter(intervalEnd);
+        LocalDateTime reservationStart = reservation.getStartTime();
+        LocalDateTime reservationEnd = reservation.getEndTime();
+        LocalDateTime coverageStart = null;
+        LocalDateTime coverageEnd = null;
+        for (ManicuristWorkScheduleIntervalRequest interval : intervals) {
+            LocalDateTime intervalStart = workDate.atStartOfDay()
+                    .plusMinutes(interval.getStartMinuteOfDay());
+            LocalDateTime intervalEnd = workDate.atStartOfDay()
+                    .plusMinutes(interval.getEndMinuteOfDay());
+            if (coverageEnd != null && intervalStart.isAfter(coverageEnd)) {
+                if (!reservationStart.isBefore(coverageStart) && !reservationEnd.isAfter(coverageEnd)) {
+                    return true;
+                }
+                coverageStart = intervalStart;
+                coverageEnd = intervalEnd;
+            } else {
+                if (coverageStart == null) {
+                    coverageStart = intervalStart;
+                }
+                if (coverageEnd == null || intervalEnd.isAfter(coverageEnd)) {
+                    coverageEnd = intervalEnd;
+                }
+            }
+        }
+        return coverageEnd != null
+                && !reservationStart.isBefore(coverageStart)
+                && !reservationEnd.isAfter(coverageEnd);
     }
 
     private ManicuristWorkSchedule toEntity(
